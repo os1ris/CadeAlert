@@ -380,17 +380,24 @@ function showBarricadeAlert() {
   timerActive = false;
   currentState = 'alert';
 
-  // Calculate remaining time (should be 6 or less)
-  let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
-  if (remaining < 0) remaining = 0;
-
-  updateTimerDisplay("USE BARRICADE!<br>(" + remaining + "s left)", 'alert-active');
   updateStatus("Ability ready!");
 
-  // Auto-reset after 8 seconds (keep it visible through zero and beyond)
-  setTimeout(function () {
-    resetTimer();
-  }, 8000);
+  // Start live countdown for barricade alert
+  countdownInterval = setInterval(function () {
+    let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
+    if (remaining < 0) remaining = 0;
+
+    updateTimerDisplay("USE BARRICADE!<br>(" + remaining + "s left)", 'alert-active');
+
+    // Stop countdown when time runs out
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      // Keep the alert visible for a bit longer
+      setTimeout(function () {
+        resetTimer();
+      }, 2000);
+    }
+  }, 100);
 }
 
 // Cancel the timer when boss says "Enough" (only within 10 seconds of trigger)
@@ -524,9 +531,10 @@ function incrementScarabCount() {
   scarabCount++;
   console.log('Scarab count:', scarabCount);
 
-  // Clear existing timeout
+  // Clear existing timeout to reset the inactivity timer
   if (scarabTimeout) {
     clearTimeout(scarabTimeout);
+    scarabTimeout = null;
   }
 
   if (scarabCount >= 4) {
@@ -535,14 +543,16 @@ function incrementScarabCount() {
     scarabCount = 0; // Reset for next phase
     scarabTimeout = setTimeout(() => {
       updateStatus("Monitoring chat...");
+      scarabTimeout = null;
     }, 5000); // Keep "All collected" visible for 5 seconds
   } else {
-    // Show current count
+    // Show current count - force immediate update
     updateStatus(`Scarabs: ${scarabCount}/4`);
     // Set timeout to clear display after 12 seconds of inactivity
     scarabTimeout = setTimeout(() => {
       scarabCount = 0; // Reset counter
       updateStatus("Monitoring chat...");
+      scarabTimeout = null;
     }, 12000);
   }
 }
