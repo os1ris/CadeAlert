@@ -254,7 +254,7 @@ function updateCountdown() {
   let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
 
   if (remaining <= 6) {
-    // Timer reached 6 seconds - show barricade alert
+    // Timer reached 6 seconds - show barricade alert and keep it visible
     showBarricadeAlert();
   } else {
     // Update countdown display with appropriate color
@@ -279,10 +279,10 @@ function showBarricadeAlert() {
   updateTimerDisplay("USE BARRICADE!", 'alert-active');
   updateStatus("Ability ready!");
 
-  // Auto-reset after 5 seconds
+  // Auto-reset after 4 seconds (keep it visible through zero and beyond)
   setTimeout(function () {
     resetTimer();
-  }, 5000);
+  }, 4000);
 }
 
 // Cancel the timer when boss says "Enough" (only within 10 seconds of trigger)
