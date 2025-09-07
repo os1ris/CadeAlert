@@ -66,7 +66,7 @@ function resetForNewInstance() {
   scarabCount = 0;
 
   // Clear displays
-  updateTimerDisplay("Waiting for<br>encounter", 'ready');
+  updateTimerDisplay("", 'ready');
   updateStatus("Ready - Monitoring chat...");
 
   console.log('✅ Reset complete - App ready for new encounter');
@@ -507,7 +507,7 @@ function resetTimer() {
   currentState = 'ready';
   clearInterval(countdownInterval);
 
-  updateTimerDisplay("Waiting for<br>encounter", 'ready');
+  updateTimerDisplay("", 'ready');
   updateStatus("Monitoring chat...");
 }
 
@@ -686,7 +686,7 @@ function startGreenFlip() {
   greenFlipInterval = setTimeout(() => {
     greenFlipActive = false;
     greenFlipCount = 0;
-    updateTimerDisplay("Waiting for<br>encounter", 'ready');
+    updateTimerDisplay("", 'ready');
     updateStatus("Monitoring chat...");
     console.log('🟢 GREEN FLIP: Display stopped');
   }, 3000);
@@ -715,7 +715,7 @@ function showKillDogsAlert() {
 
   // Reset after 9 seconds
   killDogsTimeout = setTimeout(() => {
-    updateTimerDisplay("Waiting for<br>encounter", 'ready');
+    updateTimerDisplay("", 'ready');
     updateStatus("Monitoring chat...");
     console.log('🐕 KILL DOGS: Alert ended');
   }, 9000);
@@ -747,7 +747,7 @@ function showSubjugationAlert() {
 
   // Reset after 8 seconds
   subjugationTimeout = setTimeout(() => {
-    updateTimerDisplay("Waiting for<br>encounter", 'ready');
+    updateTimerDisplay("", 'ready');
     updateStatus("Monitoring chat...");
     console.log('👑 SUBJUGATION: Alert ended');
   }, 8000);
