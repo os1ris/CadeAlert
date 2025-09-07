@@ -12,6 +12,9 @@ let timerStartTime = 0;
 let currentState = 'ready'; // 'ready', 'counting', 'alert', 'canceled'
 let isHardMode = false; // Track difficulty mode
 
+// OCR Quality Validation - Timestamp tracking
+let oldLineTime = new Date();
+
 // Load saved mode from localStorage
 function loadSavedMode() {
   const saved = localStorage.getItem('cadeAlert_hardMode');
