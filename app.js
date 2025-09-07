@@ -10,26 +10,39 @@ let countdownInterval = null;
 let timerEndTime = 0;
 let timerStartTime = 0;
 let currentState = 'ready'; // 'ready', 'counting', 'alert', 'canceled'
-let isHardMode = false; // Track difficulty mode
+let isHardMode = true; // Track difficulty mode - default to hard mode
 
 // OCR Quality Validation - Timestamp tracking
 let oldLineTime = new Date();
 
-// Load saved mode from localStorage
+// Load saved mode from localStorage - COMMENTED OUT
+/*
 function loadSavedMode() {
-  const saved = localStorage.getItem('cadeAlert_hardMode');
-  if (saved !== null) {
-    isHardMode = saved === 'true';
+  try {
+    const saved = localStorage.getItem('cadeAlert_hardMode');
+    console.log('Loading hard mode from localStorage:', saved);
+    if (saved !== null) {
+      isHardMode = saved === 'true';
+      console.log('Hard mode set to:', isHardMode);
+    } else {
+      console.log('No saved hard mode found, using default: false');
+    }
+  } catch (error) {
+    console.log('Error loading from localStorage:', error);
+    isHardMode = false; // fallback
   }
 }
 
-// Load saved mode on startup
-loadSavedMode();
-
 // Save current mode to localStorage
 function saveMode() {
-  localStorage.setItem('cadeAlert_hardMode', isHardMode.toString());
+  try {
+    localStorage.setItem('cadeAlert_hardMode', isHardMode.toString());
+    console.log('Saved hard mode to localStorage:', isHardMode);
+  } catch (error) {
+    console.log('Error saving to localStorage:', error);
+  }
 }
+*/
 
 // Complete reset function for new instance
 function resetForNewInstance() {
@@ -678,7 +691,8 @@ function incrementScarabCount() {
   }
 }
 
-// Toggle between normal and hard mode
+// Toggle between normal and hard mode - COMMENTED OUT
+/*
 function toggleMode() {
   isHardMode = !isHardMode;
   saveMode(); // Save to localStorage
@@ -702,8 +716,15 @@ function updateToggleButton() {
 
 // Initialize toggle button on startup
 function initializeToggleButton() {
+  // Load saved mode from localStorage first
+  loadSavedMode();
+
+  // Then update the button with the loaded value
   updateToggleButton();
+
+  console.log('UI initialized with hard mode:', isHardMode);
 }
+*/
 
 // Green 1/Green 2 display function
 function startGreenFlip() {
@@ -799,10 +820,12 @@ function debugReset() {
 window.debugStartTimer = debugStartTimer;
 window.debugCancelTimer = debugCancelTimer;
 window.debugReset = debugReset;
-window.toggleMode = toggleMode;
-window.updateToggleButton = updateToggleButton;
+// window.toggleMode = toggleMode; // COMMENTED OUT
+// window.updateToggleButton = updateToggleButton; // COMMENTED OUT
 
-// Initialize button when DOM is ready
+// Initialize when DOM is ready - COMMENTED OUT toggle button initialization
+/*
 document.addEventListener('DOMContentLoaded', function() {
   initializeToggleButton();
 });
+*/
