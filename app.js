@@ -69,6 +69,10 @@ let nameCallingTimeout = null;
 // Track which god last spoke for name-calling mechanic
 let lastGodSpoken = null;
 
+// Track Green 1/Green 2 mechanic state
+let greenFlipCount = 0;
+let greenFlipActive = false;
+
 // Chat reader setup - reading relevant chat colors
 let chatReader = new Chatbox.default();
 chatReader.readargs = {
@@ -149,7 +153,7 @@ function readChatbox() {
 
       // Check for "Amascut, the Devourer: Tear them apart" trigger
       if (message.includes("amascut, the devourer: tear them apart") && !timerActive) {
-        const mainAttackDuration = isHardMode ? 18000 : 27000; // 18s hard, 27s normal (shortened by 9s)
+        const mainAttackDuration = isHardMode ? 22000 : 36000; // 22s hard, 36s normal
         console.log(`🎯 TRIGGER DETECTED: Starting barricade timer (${mainAttackDuration/1000}s) [${isHardMode ? 'HARD' : 'NORMAL'} MODE]`);
         startBarricadeTimer(mainAttackDuration);
       }
@@ -309,8 +313,18 @@ function readChatbox() {
 
       // Check for Amascut's "Your light will be snuffed out" message
       else if (message.includes("your light will be snuffed out, once and for all")) {
-        console.log('🟢 LIGHT SNUFFED: Starting Green 1/Green 2 flip');
-        startGreenFlip();
+        greenFlipCount++;
+        console.log(`🟢 LIGHT SNUFFED: Green flip count ${greenFlipCount}`);
+
+        if (!greenFlipActive) {
+          // First detection - start the mechanic
+          greenFlipActive = true;
+          startGreenFlip();
+        } else {
+          // Subsequent detection - toggle to Green 2
+          updateTimerDisplay("GREEN 2", 'alert-active');
+          updateStatus("Green 2 Active!");
+        }
       }
 
       // Check for Tumeken's "A new dawn" message
@@ -584,38 +598,26 @@ function initializeToggleButton() {
   updateToggleButton();
 }
 
-// Green 1/Green 2 flipping display function
+// Green 1/Green 2 display function
 function startGreenFlip() {
-  console.log('🟢 GREEN FLIP: Starting Green 1/Green 2 display');
+  console.log('🟢 GREEN FLIP: Starting Green 1 display');
 
   // Clear any existing intervals
   if (greenFlipInterval) {
     clearInterval(greenFlipInterval);
   }
 
-  let showGreen1 = true;
+  // Show Green 1 initially
+  updateTimerDisplay("GREEN 1", 'alert-active');
+  updateStatus("Green 1 Active!");
 
-  // Start flipping between Green 1 and Green 2
-  greenFlipInterval = setInterval(() => {
-    if (showGreen1) {
-      updateTimerDisplay("GREEN 1", 'alert-active');
-      updateStatus("Green 1 Active!");
-    } else {
-      updateTimerDisplay("GREEN 2", 'alert-active');
-      updateStatus("Green 2 Active!");
-    }
-    showGreen1 = !showGreen1;
-  }, 500); // Flip every 0.5 seconds
-
-  // Stop after 6 seconds
-  setTimeout(() => {
-    if (greenFlipInterval) {
-      clearInterval(greenFlipInterval);
-      greenFlipInterval = null;
-      updateTimerDisplay("Waiting for<br>encounter", 'ready');
-      updateStatus("Monitoring chat...");
-      console.log('🟢 GREEN FLIP: Display stopped');
-    }
+  // Stop after 6 seconds and reset state
+  greenFlipInterval = setTimeout(() => {
+    greenFlipActive = false;
+    greenFlipCount = 0;
+    updateTimerDisplay("Waiting for<br>encounter", 'ready');
+    updateStatus("Monitoring chat...");
+    console.log('🟢 GREEN FLIP: Display stopped');
   }, 6000);
 }
 
