@@ -426,6 +426,9 @@ function updateStatus(message) {
       statusBox.innerHTML = '<span style="font-size: 20px; font-weight: bold; color: #ff0000; text-decoration: underline;">' + message + '</span>';
     } else if (message === "NW Vokes!" || message === "SW Vokes!" || message === "NE Vokes!" || message === "SE Vokes!") {
       statusBox.innerHTML = '<span style="font-size: 22px; font-weight: bold; color: #ffff00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
+    } else if (message === "Amascut attacking Tumeken!") {
+      // Make Amascut attacking Tumeken message bigger with subtext
+      statusBox.innerHTML = '<div style="font-size: 24px; font-weight: bold; color: #ff4444; text-shadow: 2px 2px 4px #000;">' + message + '</div><div style="font-size: 16px; color: #ffffff; margin-top: 5px;">Look for your name!</div>';
     } else if (message.includes("Scarabs:") || message === "All scarabs collected!") {
       // Make scarab messages bigger and more prominent
       statusBox.innerHTML = '<span style="font-size: 24px; font-weight: bold; color: #ffaa00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
