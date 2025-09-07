@@ -60,6 +60,10 @@ function resetForNewInstance() {
 let scarabCount = 0;
 let scarabTimeout = null;
 
+// Mechanic display intervals
+let greenFlipInterval = null;
+let killDogsTimeout = null;
+
 // Chat reader setup - reading relevant chat colors
 let chatReader = new Chatbox.default();
 chatReader.readargs = {
@@ -273,6 +277,18 @@ function readChatbox() {
         setTimeout(() => {
           updateStatus("Monitoring chat...");
         }, 3000);
+      }
+
+      // Check for Amascut's "Your light will be snuffed out" message
+      else if (message.includes("your light will be snuffed out, once and for all")) {
+        console.log('🟢 LIGHT SNUFFED: Starting Green 1/Green 2 flip');
+        startGreenFlip();
+      }
+
+      // Check for Tumeken's "A new dawn" message
+      else if (message.includes("a new dawn")) {
+        console.log('🐕 NEW DAWN: Starting KILL DOGS NOW alert');
+        showKillDogsAlert();
       }
     }
   }
@@ -512,6 +528,70 @@ function updateToggleButton() {
 // Initialize toggle button on startup
 function initializeToggleButton() {
   updateToggleButton();
+}
+
+// Green 1/Green 2 flipping display function
+function startGreenFlip() {
+  console.log('🟢 GREEN FLIP: Starting Green 1/Green 2 display');
+
+  // Clear any existing intervals
+  if (greenFlipInterval) {
+    clearInterval(greenFlipInterval);
+  }
+
+  let showGreen1 = true;
+
+  // Start flipping between Green 1 and Green 2
+  greenFlipInterval = setInterval(() => {
+    if (showGreen1) {
+      updateTimerDisplay("GREEN 1", 'alert-active');
+      updateStatus("Green 1 Active!");
+    } else {
+      updateTimerDisplay("GREEN 2", 'alert-active');
+      updateStatus("Green 2 Active!");
+    }
+    showGreen1 = !showGreen1;
+  }, 500); // Flip every 0.5 seconds
+
+  // Stop after 6 seconds
+  setTimeout(() => {
+    if (greenFlipInterval) {
+      clearInterval(greenFlipInterval);
+      greenFlipInterval = null;
+      updateTimerDisplay("Waiting for<br>encounter", 'ready');
+      updateStatus("Monitoring chat...");
+      console.log('🟢 GREEN FLIP: Display stopped');
+    }
+  }, 6000);
+}
+
+// KILL DOGS NOW alert function
+function showKillDogsAlert() {
+  console.log('🐕 KILL DOGS: Starting alert');
+
+  // Clear any existing intervals and timeouts
+  if (greenFlipInterval) {
+    clearInterval(greenFlipInterval);
+    greenFlipInterval = null;
+  }
+  if (killDogsTimeout) {
+    clearTimeout(killDogsTimeout);
+  }
+  if (scarabTimeout) {
+    clearTimeout(scarabTimeout);
+    scarabTimeout = null;
+  }
+
+  // Clear all displays and show KILL DOGS NOW
+  updateTimerDisplay("KILL DOGS NOW", 'alert-active');
+  updateStatus("KILL DOGS NOW!");
+
+  // Reset after 9 seconds
+  killDogsTimeout = setTimeout(() => {
+    updateTimerDisplay("Waiting for<br>encounter", 'ready');
+    updateStatus("Monitoring chat...");
+    console.log('🐕 KILL DOGS: Alert ended');
+  }, 9000);
 }
 
 // Debug function for testing reset
