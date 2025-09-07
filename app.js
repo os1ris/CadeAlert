@@ -195,7 +195,7 @@ function readChatbox() {
       }
 
       // Check for NE voke call
-      else if (message.includes("scabaras")) {
+      else if (message.includes("scabaras..")) {
         console.log('📍 NE VOKES CALLED');
         updateStatus("NE Vokes!");
         setTimeout(() => {
@@ -204,7 +204,7 @@ function readChatbox() {
       }
 
       // Check for SE voke call
-      else if (message.includes("crondis")) {
+      else if (message.includes("crondis... it should have never come to this")) {
         console.log('📍 SE VOKES CALLED');
         updateStatus("SE Vokes!");
         setTimeout(() => {
