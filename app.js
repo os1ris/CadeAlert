@@ -203,10 +203,16 @@ function readChatbox() {
         continue; // Skip other processing for this message
       }
 
-      // Check for "Amascut, the Devourer: Tear them apart" trigger
-      if (message.includes("amascut, the devourer: tear them apart") && !timerActive) {
+      // Check for "Amascut, the Devourer: Tear them apart" trigger - HIGH PRIORITY DETECTION
+      if (!timerActive && (
+          message.includes("tear them apart") ||
+          message.includes("tear them") ||
+          message.includes("amascut") && message.includes("tear") ||
+          message.includes("devourer") && message.includes("tear")
+      )) {
         const mainAttackDuration = isHardMode ? 21000 : 36000; // 21s hard, 36s normal
-        console.log(`🎯 TRIGGER DETECTED: Starting barricade timer (${mainAttackDuration/1000}s) [${isHardMode ? 'HARD' : 'NORMAL'} MODE]`);
+        console.log(`🎯 CRITICAL TRIGGER DETECTED: "${message}"`);
+        console.log(`🚀 STARTING BARRICADE TIMER: ${mainAttackDuration/1000}s [${isHardMode ? 'HARD' : 'NORMAL'} MODE]`);
         startBarricadeTimer(mainAttackDuration);
       }
 
@@ -293,9 +299,11 @@ function readChatbox() {
         nameCallingTimeout = setTimeout(() => {
           console.log('🚨 NAME-CALLING MECHANIC: Alert triggered');
 
-          // Check if it's Crondis and add "No skulls!" message
+          // Check which god was last spoken to and show appropriate message
           if (lastGodSpoken === 'crondis') {
             updateStatus("NAME-CALLING MECHANIC! NO SKULLS!");
+          } else if (lastGodSpoken === 'scabaras') {
+            updateStatus("NAME-CALLING MECHANIC! THROW SCARABS!");
           } else {
             updateStatus("NAME-CALLING MECHANIC!");
           }
@@ -334,8 +342,8 @@ function readChatbox() {
         }, 4000);
       }
 
-      // Check for NE voke call
-      else if (message.includes("scabaras..")) {
+      // Check for NE voke call - SPECIFIC DETECTION to avoid false positives
+      else if (message === "scabaras.." || (message.includes("scabaras..") && message.length < 20)) {
         console.log('📍 NE VOKES CALLED - Scabaras called');
         lastGodSpoken = 'scabaras';
         updateStatus("NE Vokes! THROW SCARABS!");
