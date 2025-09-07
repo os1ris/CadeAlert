@@ -88,6 +88,72 @@ chatReader.readargs = {
   backwards: true,
 };
 
+// Boss timer reader setup - automatic encounter detection
+let bossTimerReader = new BossTimer.default();
+let bossTimerActive = false; // Track if boss timer was detected
+let encounterStartTime = 0; // Track when encounter started
+
+// Boss timer detection function
+function checkBossTimer() {
+  try {
+    if (bossTimerReader.find() !== null) {
+      // Boss timer is present
+      if (!bossTimerActive) {
+        // Boss timer just appeared - start encounter
+        bossTimerActive = true;
+        encounterStartTime = Date.now();
+        console.log('🎯 BOSS TIMER DETECTED: Starting encounter');
+
+        const modeText = isHardMode ? "[HARD MODE]" : "[NORMAL MODE]";
+        updateStatus(`Encounter Started ${modeText} - Monitoring chat...`);
+        updateTimerDisplay("Encounter<br>Active", 'ready');
+
+        // Reset encounter-specific state
+        scarabCount = 0;
+        greenFlipCount = 0;
+        greenFlipActive = false;
+        lastGodSpoken = null;
+
+        // Clear any existing timeouts
+        if (scarabTimeout) {
+          clearTimeout(scarabTimeout);
+          scarabTimeout = null;
+        }
+        if (greenFlipInterval) {
+          clearInterval(greenFlipInterval);
+          greenFlipInterval = null;
+        }
+        if (killDogsTimeout) {
+          clearTimeout(killDogsTimeout);
+          killDogsTimeout = null;
+        }
+        if (subjugationTimeout) {
+          clearTimeout(subjugationTimeout);
+          subjugationTimeout = null;
+        }
+        if (nameCallingTimeout) {
+          clearTimeout(nameCallingTimeout);
+          nameCallingTimeout = null;
+        }
+      }
+    } else {
+      // Boss timer is not present
+      if (bossTimerActive) {
+        // Boss timer just disappeared - reset encounter
+        bossTimerActive = false;
+        const encounterDuration = Date.now() - encounterStartTime;
+        console.log(`🏁 BOSS TIMER DISAPPEARED: Encounter ended after ${Math.round(encounterDuration/1000)}s`);
+
+        // Reset everything to ready state
+        resetForNewInstance();
+      }
+    }
+  } catch (error) {
+    console.log('Error checking boss timer:', error);
+    // Don't call handleError here as it's not a critical failure
+  }
+}
+
 // Initialize chat reader
 let findChat = setInterval(function () {
   if (chatReader.pos === null) {
@@ -103,7 +169,7 @@ let findChat = setInterval(function () {
     updateStatus(`Ready - ${modeText} Monitoring chat...`);
     clearInterval(findChat);
 
-    // Start monitoring chat
+    // Start monitoring chat and boss timer
     setInterval(function () {
       // Check if chatbox is still available
       if (chatReader.pos === null) {
@@ -126,6 +192,11 @@ let findChat = setInterval(function () {
         }, 1000);
         return; // Don't process chat this cycle
       }
+
+      // Check boss timer for automatic encounter management
+      checkBossTimer();
+
+      // Process chat messages
       readChatbox();
     }, 300);
   }
