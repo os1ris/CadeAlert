@@ -25,10 +25,11 @@ A RuneScape Alt1 Toolkit plug-in that monitors chat for boss phrases and provide
 
 ## Installation
 
-1. Copy all files to your Alt1 apps directory
-2. Open Alt1 Toolkit
-3. Add the BarricadeTimer app
-4. Position the overlay near your chat window
+To install CadeAlert copy & paste this link into your browser:
+alt1://addapp/https://os1ris.github.io/CadeAlert/appconfig.json
+
+Or go to this URL in the alt1 browser:
+https://os1ris.github.io/CadeAlert/
 
 ## Files
 
