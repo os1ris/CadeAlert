@@ -12,6 +12,22 @@ let timerStartTime = 0;
 let currentState = 'ready'; // 'ready', 'counting', 'alert', 'canceled'
 let isHardMode = false; // Track difficulty mode
 
+// Load saved mode from localStorage
+function loadSavedMode() {
+  const saved = localStorage.getItem('cadeAlert_hardMode');
+  if (saved !== null) {
+    isHardMode = saved === 'true';
+  }
+}
+
+// Load saved mode on startup
+loadSavedMode();
+
+// Save current mode to localStorage
+function saveMode() {
+  localStorage.setItem('cadeAlert_hardMode', isHardMode.toString());
+}
+
 // Scarab counter
 let scarabCount = 0;
 let scarabTimeout = null;
@@ -89,7 +105,7 @@ function readChatbox() {
 
       // Check for "Amascut, the Devourer: Tear them apart" trigger
       if (message.includes("amascut, the devourer: tear them apart") && !timerActive) {
-        const mainAttackDuration = isHardMode ? 21000 : 36000; // 21s hard, 36s normal
+        const mainAttackDuration = isHardMode ? 26000 : 36000; // 26s hard, 36s normal
         console.log(`🎯 TRIGGER DETECTED: Starting barricade timer (${mainAttackDuration/1000}s) [${isHardMode ? 'HARD' : 'NORMAL'} MODE]`);
         startBarricadeTimer(mainAttackDuration);
       }
@@ -439,6 +455,8 @@ function incrementScarabCount() {
 // Toggle between normal and hard mode
 function toggleMode() {
   isHardMode = !isHardMode;
+  saveMode(); // Save to localStorage
+  updateToggleButton(); // Update button appearance
   const modeText = isHardMode ? "HARD MODE" : "NORMAL MODE";
   console.log(`🔄 MODE SWITCHED: Now in ${modeText}`);
   updateStatus(`${modeText} - Monitoring chat...`);
@@ -447,7 +465,27 @@ function toggleMode() {
   }, 2000);
 }
 
+// Update toggle button text
+function updateToggleButton() {
+  const button = document.getElementById('modeToggle');
+  if (button) {
+    button.textContent = isHardMode ? 'Hard Mode' : 'Normal Mode';
+    button.className = isHardMode ? 'btn btn-sm btn-outline-danger' : 'btn btn-sm btn-outline-primary';
+  }
+}
+
+// Initialize toggle button on startup
+function initializeToggleButton() {
+  updateToggleButton();
+}
+
 // Make functions available globally
 window.debugStartTimer = debugStartTimer;
 window.debugCancelTimer = debugCancelTimer;
 window.toggleMode = toggleMode;
+window.updateToggleButton = updateToggleButton;
+
+// Initialize button when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  initializeToggleButton();
+});
