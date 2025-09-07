@@ -28,6 +28,34 @@ function saveMode() {
   localStorage.setItem('cadeAlert_hardMode', isHardMode.toString());
 }
 
+// Complete reset function for new instance
+function resetForNewInstance() {
+  console.log('🔄 NEW INSTANCE DETECTED: Resetting all timers and alerts');
+
+  // Clear all active timers and intervals
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+  if (scarabTimeout) {
+    clearTimeout(scarabTimeout);
+    scarabTimeout = null;
+  }
+
+  // Reset all state variables
+  timerActive = false;
+  timerEndTime = 0;
+  timerStartTime = 0;
+  currentState = 'ready';
+  scarabCount = 0;
+
+  // Clear displays
+  updateTimerDisplay("Waiting for<br>encounter", 'ready');
+  updateStatus("Ready - Monitoring chat...");
+
+  console.log('✅ Reset complete - App ready for new encounter');
+}
+
 // Scarab counter
 let scarabCount = 0;
 let scarabTimeout = null;
@@ -102,6 +130,13 @@ function readChatbox() {
       // Log all detected chat text for debugging
       console.log('Chat detected:', line.text);
       console.log('Processed message:', message);
+
+      // Check for welcome message to reset for new instance
+      if (message.includes("welcome to your session against: amascut, the devourer")) {
+        console.log('🏰 WELCOME MESSAGE DETECTED: New Amascut instance started');
+        resetForNewInstance();
+        continue; // Skip other processing for this message
+      }
 
       // Check for "Amascut, the Devourer: Tear them apart" trigger
       if (message.includes("amascut, the devourer: tear them apart") && !timerActive) {
@@ -479,9 +514,16 @@ function initializeToggleButton() {
   updateToggleButton();
 }
 
+// Debug function for testing reset
+function debugReset() {
+  console.log('🔄 DEBUG: Manual reset triggered');
+  resetForNewInstance();
+}
+
 // Make functions available globally
 window.debugStartTimer = debugStartTimer;
 window.debugCancelTimer = debugCancelTimer;
+window.debugReset = debugReset;
 window.toggleMode = toggleMode;
 window.updateToggleButton = updateToggleButton;
 
