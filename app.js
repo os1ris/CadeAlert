@@ -116,6 +116,8 @@ let findChat = setInterval(function () {
     console.log("Chatbox found!");
     const modeText = isHardMode ? "[HARD MODE]" : "[NORMAL MODE]";
     updateStatus(`Ready - ${modeText} Monitoring chat...`);
+    // Clear timer display when fully ready
+    updateTimerDisplay("", 'ready');
     clearInterval(findChat);
 
     // Start monitoring chat
@@ -203,7 +205,7 @@ function readChatbox() {
 
       // Check for "Amascut, the Devourer: Tear them apart" trigger
       if (message.includes("amascut, the devourer: tear them apart") && !timerActive) {
-        const mainAttackDuration = isHardMode ? 22000 : 36000; // 22s hard, 36s normal
+        const mainAttackDuration = isHardMode ? 21000 : 36000; // 21s hard, 36s normal
         console.log(`🎯 TRIGGER DETECTED: Starting barricade timer (${mainAttackDuration/1000}s) [${isHardMode ? 'HARD' : 'NORMAL'} MODE]`);
         startBarricadeTimer(mainAttackDuration);
       }
