@@ -320,7 +320,7 @@ function readChatbox() {
       }
 
       // Check for Amascut's "I will not be subjugated" message
-      else if (message.includes("i will not be subjugated by a mortal")) {
+      else if (message.includes("i will not be subjugated")) {
         console.log('👑 SUBJUGATION: Starting stand behind alert');
         showSubjugationAlert();
       }
