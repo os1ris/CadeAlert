@@ -140,11 +140,41 @@ function readChatbox() {
       if (line && line.text) {
         let message = line.text.toLowerCase().trim();
 
-      // Log all detected chat text for debugging
-      console.log('Chat detected:', line.text);
-      console.log('Processed message:', message);
+        // OCR Quality Validation - Timestamp processing
+        let lineTime = new Date();
+        let lineTimeStr = null;
 
-      // Check for welcome message to reset for new instance
+        try {
+          // Extract timestamp from chatline if present
+          lineTimeStr = line.text.match(/[0-9]{2}[:]{1}[0-9]{2}[:]{1}[0-9]{2}/g);
+          if (lineTimeStr && lineTimeStr[0]) {
+            lineTimeStr = lineTimeStr[0];
+            let lineTimeSplit = lineTimeStr.split(':');
+
+            // Handle day rollover
+            if (lineTimeSplit[0] == 23 && lineTime.getHours() == 0) {
+              lineTime.setDate(lineTime.getDate() - 1);
+            }
+
+            lineTime.setHours(lineTimeSplit[0]);
+            lineTime.setMinutes(lineTimeSplit[1]);
+            lineTime.setSeconds(lineTimeSplit[2]);
+          }
+        } catch (e) {
+          console.log('Error parsing timestamp:', e.message);
+        }
+
+        // OCR Quality Validation - Check if message is newer than previous
+        if (oldLineTime <= lineTime || lineTimeStr === null) {
+          if (lineTimeStr !== null) {
+            oldLineTime = lineTime;
+          }
+
+          // Log all detected chat text for debugging
+          console.log('Chat detected:', line.text);
+          console.log('Processed message:', message);
+
+          // Check for welcome message to reset for new instance
       if (message.includes("welcome to your session against: amascut, the devourer")) {
         console.log('🏰 WELCOME MESSAGE DETECTED: New Amascut instance started');
         resetForNewInstance();
@@ -338,8 +368,11 @@ function readChatbox() {
         console.log('👑 SUBJUGATION: Starting stand behind alert');
         showSubjugationAlert();
       }
+        } else {
+          console.log("Skipping old message:", line.text);
+        }
+      }
     }
-  }
   } catch (error) {
     console.log('Error reading chat:', error);
     handleError(error);
