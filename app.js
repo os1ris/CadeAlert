@@ -65,6 +65,14 @@ function resetForNewInstance() {
   currentState = 'ready';
   scarabCount = 0;
 
+  // Reset green flip mechanic state
+  greenFlipCount = 0;
+  greenFlipActive = false;
+  if (greenFlipInterval) {
+    clearTimeout(greenFlipInterval);
+    greenFlipInterval = null;
+  }
+
   // Clear displays
   updateTimerDisplay("", 'ready');
   updateStatus("Ready - Monitoring chat...");
@@ -675,20 +683,18 @@ function startGreenFlip() {
 
   // Clear any existing intervals
   if (greenFlipInterval) {
-    clearInterval(greenFlipInterval);
+    clearTimeout(greenFlipInterval);
   }
 
   // Show Green 1 initially
   updateTimerDisplay("GREEN 1", 'alert-active');
   updateStatus("Green 1 Active!");
 
-  // Stop after 3 seconds and reset state
+  // Clear display after 3 seconds but preserve state for toggling
   greenFlipInterval = setTimeout(() => {
-    greenFlipActive = false;
-    greenFlipCount = 0;
     updateTimerDisplay("", 'ready');
     updateStatus("Monitoring chat...");
-    console.log('🟢 GREEN FLIP: Display stopped');
+    console.log('🟢 GREEN FLIP: Display cleared, state preserved for toggling');
   }, 3000);
 }
 
