@@ -63,6 +63,11 @@ let scarabTimeout = null;
 // Mechanic display intervals
 let greenFlipInterval = null;
 let killDogsTimeout = null;
+let subjugationTimeout = null;
+let nameCallingTimeout = null;
+
+// Track which god last spoke for name-calling mechanic
+let lastGodSpoken = null;
 
 // Chat reader setup - reading relevant chat colors
 let chatReader = new Chatbox.default();
@@ -221,22 +226,42 @@ function readChatbox() {
 
       // Check for name-calling mechanic start
       else if (message.includes("you are nothing")) {
-        console.log('🚨 NAME-CALLING MECHANIC START');
-        updateStatus("NAME-CALLING MECHANIC!");
-        // Cancel any active timers during this phase
-        if (timerActive) {
-          clearInterval(countdownInterval);
-          timerActive = false;
-          updateTimerDisplay("Mechanic Active", 'alert-active');
+        console.log('🚨 STATUE-CALLING MECHANIC START - Delaying 3.6s');
+
+        // Clear any existing name-calling timeout
+        if (nameCallingTimeout) {
+          clearTimeout(nameCallingTimeout);
         }
-        setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 5000);
+
+        // Delay the alert by 3.6 seconds
+        nameCallingTimeout = setTimeout(() => {
+          console.log('🚨 NAME-CALLING MECHANIC: Alert triggered');
+
+          // Check if it's Crondis and add "No skulls!" message
+          if (lastGodSpoken === 'crondis') {
+            updateStatus("NAME-CALLING MECHANIC! NO SKULLS!");
+          } else {
+            updateStatus("NAME-CALLING MECHANIC!");
+          }
+
+          // Cancel any active timers during this phase
+          if (timerActive) {
+            clearInterval(countdownInterval);
+            timerActive = false;
+            updateTimerDisplay("Mechanic Active", 'alert-active');
+          }
+
+          // Clear the alert after 5 seconds
+          setTimeout(() => {
+            updateStatus("Monitoring chat...");
+          }, 5000);
+        }, 3600); // 3.6 seconds delay
       }
 
       // Check for NW voke call
       else if (message.includes("i am sorry, apmeken")) {
         console.log('📍 NW VOKES CALLED');
+        lastGodSpoken = 'apmeken';
         updateStatus("NW Vokes!");
         setTimeout(() => {
           updateStatus("Monitoring chat...");
@@ -246,6 +271,7 @@ function readChatbox() {
       // Check for SW voke call
       else if (message.includes("forgive me, het")) {
         console.log('📍 SW VOKES CALLED');
+        lastGodSpoken = 'het';
         updateStatus("SW Vokes!");
         setTimeout(() => {
           updateStatus("Monitoring chat...");
@@ -254,8 +280,9 @@ function readChatbox() {
 
       // Check for NE voke call
       else if (message.includes("scabaras..")) {
-        console.log('📍 NE VOKES CALLED');
-        updateStatus("NE Vokes!");
+        console.log('📍 NE VOKES CALLED - Scabaras called');
+        lastGodSpoken = 'scabaras';
+        updateStatus("NE Vokes! THROW SCARABS!");
         setTimeout(() => {
           updateStatus("Monitoring chat...");
         }, 4000);
@@ -264,6 +291,7 @@ function readChatbox() {
       // Check for SE voke call
       else if (message.includes("crondis... it should have never come to this")) {
         console.log('📍 SE VOKES CALLED');
+        lastGodSpoken = 'crondis';
         updateStatus("SE Vokes!");
         setTimeout(() => {
           updateStatus("Monitoring chat...");
@@ -289,6 +317,12 @@ function readChatbox() {
       else if (message.includes("a new dawn")) {
         console.log('🐕 NEW DAWN: Starting KILL DOGS NOW alert');
         showKillDogsAlert();
+      }
+
+      // Check for Amascut's "I will not be subjugated" message
+      else if (message.includes("i will not be subjugated by a mortal")) {
+        console.log('👑 SUBJUGATION: Starting stand behind alert');
+        showSubjugationAlert();
       }
     }
   }
@@ -346,7 +380,11 @@ function showBarricadeAlert() {
   timerActive = false;
   currentState = 'alert';
 
-  updateTimerDisplay("USE BARRICADE!", 'alert-active');
+  // Calculate remaining time (should be 6 or less)
+  let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
+  if (remaining < 0) remaining = 0;
+
+  updateTimerDisplay("USE BARRICADE!<br>(" + remaining + "s left)", 'alert-active');
   updateStatus("Ability ready!");
 
   // Auto-reset after 8 seconds (keep it visible through zero and beyond)
@@ -598,6 +636,38 @@ function showKillDogsAlert() {
     updateStatus("Monitoring chat...");
     console.log('🐕 KILL DOGS: Alert ended');
   }, 9000);
+}
+
+// Stand behind Amascut alert function
+function showSubjugationAlert() {
+  console.log('👑 SUBJUGATION: Starting stand behind alert');
+
+  // Clear any existing intervals and timeouts
+  if (greenFlipInterval) {
+    clearInterval(greenFlipInterval);
+    greenFlipInterval = null;
+  }
+  if (killDogsTimeout) {
+    clearTimeout(killDogsTimeout);
+  }
+  if (subjugationTimeout) {
+    clearTimeout(subjugationTimeout);
+  }
+  if (scarabTimeout) {
+    clearTimeout(scarabTimeout);
+    scarabTimeout = null;
+  }
+
+  // Clear all displays and show STAND BEHIND AMASCUT
+  updateTimerDisplay("STAND BEHIND<br>AMASCUT", 'alert-active');
+  updateStatus("STAND BEHIND AMASCUT, KILL MINIONS!");
+
+  // Reset after 8 seconds
+  subjugationTimeout = setTimeout(() => {
+    updateTimerDisplay("Waiting for<br>encounter", 'ready');
+    updateStatus("Monitoring chat...");
+    console.log('👑 SUBJUGATION: Alert ended');
+  }, 8000);
 }
 
 // Debug function for testing reset
