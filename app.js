@@ -211,6 +211,15 @@ function readChatbox() {
           updateStatus("Monitoring chat...");
         }, 4000);
       }
+
+      // Check for "Bend the Knee" attack
+      else if (message.includes("bend the knee")) {
+        console.log('⚔️ BEND THE KNEE ATTACK: Incoming attack detected');
+        updateStatus("Bend the Knee Attack Incoming!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 3000);
+      }
     }
   }
   } catch (error) {
@@ -334,6 +343,8 @@ function updateStatus(message) {
   const statusBox = document.getElementById('statusBox');
   if (statusBox) {
     if (message === "Tri-Colour Attack Incoming!") {
+      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
+    } else if (message === "Bend the Knee Attack Incoming!") {
       statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
     } else if (message === "Pray Magic!") {
       statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #0080ff;">' + message + '</span>';
