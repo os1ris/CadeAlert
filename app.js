@@ -426,6 +426,9 @@ function updateStatus(message) {
       statusBox.innerHTML = '<span style="font-size: 20px; font-weight: bold; color: #ff0000; text-decoration: underline;">' + message + '</span>';
     } else if (message === "NW Vokes!" || message === "SW Vokes!" || message === "NE Vokes!" || message === "SE Vokes!") {
       statusBox.innerHTML = '<span style="font-size: 22px; font-weight: bold; color: #ffff00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
+    } else if (message.includes("Scarabs:") || message === "All scarabs collected!") {
+      // Make scarab messages bigger and more prominent
+      statusBox.innerHTML = '<span style="font-size: 24px; font-weight: bold; color: #ffaa00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
     } else {
       statusBox.textContent = message;
     }
@@ -491,15 +494,15 @@ function incrementScarabCount() {
     scarabCount = 0; // Reset for next phase
     scarabTimeout = setTimeout(() => {
       updateStatus("Monitoring chat...");
-    }, 3000);
+    }, 5000); // Keep "All collected" visible for 5 seconds
   } else {
     // Show current count
     updateStatus(`Scarabs: ${scarabCount}/4`);
-    // Set timeout to clear display after 5 seconds of inactivity
+    // Set timeout to clear display after 12 seconds of inactivity
     scarabTimeout = setTimeout(() => {
       scarabCount = 0; // Reset counter
       updateStatus("Monitoring chat...");
-    }, 5000);
+    }, 12000);
   }
 }
 
