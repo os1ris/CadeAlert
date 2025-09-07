@@ -140,7 +140,7 @@ function readChatbox() {
 
       // Check for "Amascut, the Devourer: Tear them apart" trigger
       if (message.includes("amascut, the devourer: tear them apart") && !timerActive) {
-        const mainAttackDuration = isHardMode ? 26000 : 36000; // 26s hard, 36s normal
+        const mainAttackDuration = isHardMode ? 27000 : 36000; // 27s hard, 36s normal
         console.log(`🎯 TRIGGER DETECTED: Starting barricade timer (${mainAttackDuration/1000}s) [${isHardMode ? 'HARD' : 'NORMAL'} MODE]`);
         startBarricadeTimer(mainAttackDuration);
       }
