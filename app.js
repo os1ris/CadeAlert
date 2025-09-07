@@ -234,21 +234,21 @@ function readChatbox() {
         updateStatus("Pray Melee!");
         setTimeout(() => {
           updateStatus("Monitoring chat...");
-        }, 3000);
+        }, 6000);
       }
       else if (message.includes("i will not suffer this")) {
         console.log('🛡️ PRAYER ALERT: Ranged attack detected');
         updateStatus("Pray Ranged!");
         setTimeout(() => {
           updateStatus("Monitoring chat...");
-        }, 3000);
+        }, 6000);
       }
       else if (message.includes("your soul is weak")) {
         console.log('🛡️ PRAYER ALERT: Magic attack detected');
         updateStatus("Pray Magic!");
         setTimeout(() => {
           updateStatus("Monitoring chat...");
-        }, 3000);
+        }, 6000);
       }
 
       // Check for tri-colour attack warnings
