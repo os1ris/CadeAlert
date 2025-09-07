@@ -253,8 +253,8 @@ function updateCountdown() {
 
   let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
 
-  if (remaining <= 0) {
-    // Timer expired - show barricade alert
+  if (remaining <= 6) {
+    // Timer reached 6 seconds - show barricade alert
     showBarricadeAlert();
   } else {
     // Update countdown display with appropriate color
