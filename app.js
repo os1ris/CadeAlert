@@ -279,10 +279,10 @@ function showBarricadeAlert() {
   updateTimerDisplay("USE BARRICADE!", 'alert-active');
   updateStatus("Ability ready!");
 
-  // Auto-reset after 4 seconds (keep it visible through zero and beyond)
+  // Auto-reset after 8 seconds (keep it visible through zero and beyond)
   setTimeout(function () {
     resetTimer();
-  }, 4000);
+  }, 8000);
 }
 
 // Cancel the timer when boss says "Enough" (only within 10 seconds of trigger)
