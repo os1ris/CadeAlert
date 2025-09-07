@@ -2,6 +2,8 @@
 
 A RuneScape Alt1 Toolkit plug-in that monitors chat for boss phrases and provides timing assistance for the barricade ability.
 
+![Amascut, Goddess of Destruction](https://runescape.wiki/images/thumb/New_Boss_Out_Now-_Amascut%2C_Goddess_of_Destruction_%283%29_update_image.jpg/800px-New_Boss_Out_Now-_Amascut%2C_Goddess_of_Destruction_%283%29_update_image.jpg?a8cfa)
+
 ## Features
 
 - **Chat Monitoring**: Automatically detects when Amascut says "Amascut, the Devourer: Tear them apart"
@@ -56,3 +58,4 @@ For testing purposes, you can use these console commands:
 - Make sure you're running the plug-in in Alt1 Toolkit, not a regular browser
 - The plug-in requires Alt1's special libraries to function
 - Try refreshing the page or re-adding the app
+
