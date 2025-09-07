@@ -1,0 +1,427 @@
+// Barricade Timer Alt1 Toolkit Plug-in
+// Monitors chat for boss phrases and provides timing for barricade ability
+
+// Enable "Add App" button for Alt1 Browser
+A1lib.identifyApp("appconfig.json");
+
+// State management
+let timerActive = false;
+let countdownInterval = null;
+let timerEndTime = 0;
+let timerStartTime = 0;
+let currentState = 'ready'; // 'ready', 'counting', 'alert', 'canceled'
+
+// Scarab counter
+let scarabCount = 0;
+let scarabTimeout = null;
+
+// Chat reader setup - reading relevant chat colors
+let chatReader = new Chatbox.default();
+chatReader.readargs = {
+  colors: [
+    A1lib.mixColor(255, 255, 255), // Normal Text White
+    A1lib.mixColor(69, 131, 145),  // Amascut Blue
+    A1lib.mixColor(153, 255, 153), // Amascut Green
+    A1lib.mixColor(196, 184, 72)   // Tumeken Gold
+],
+  backwards: true,
+};
+
+// Initialize chat reader
+let findChat = setInterval(function () {
+  if (chatReader.pos === null) {
+    try {
+      chatReader.find();
+      updateStatus("Looking for chatbox...");
+    } catch (e) {
+      handleError(e);
+    }
+  } else {
+    console.log("Chatbox found!");
+    updateStatus("Ready - Monitoring chat...");
+    clearInterval(findChat);
+
+    // Start monitoring chat
+    setInterval(function () {
+      // Check if chatbox is still available
+      if (chatReader.pos === null) {
+        console.log('Chatbox lost - restarting search');
+        updateTimerDisplay("Searching...", '');
+        updateStatus("Looking for chatbox...");
+        // Restart the chatbox search
+        findChat = setInterval(function () {
+          if (chatReader.pos === null) {
+            try {
+              chatReader.find();
+            } catch (e) {
+              handleError(e);
+            }
+          } else {
+            console.log("Chatbox found again!");
+            updateStatus("Ready - Monitoring chat...");
+            clearInterval(findChat);
+          }
+        }, 1000);
+        return; // Don't process chat this cycle
+      }
+      readChatbox();
+    }, 300);
+  }
+}, 1000);
+
+// Read and process chat messages
+function readChatbox() {
+  try {
+    var lines = chatReader.read() || [];
+    const numLines = lines.length;
+
+    for (let idx = 0; idx < numLines; idx++) {
+      let line = lines[idx];
+
+      if (line && line.text) {
+        let message = line.text.toLowerCase().trim();
+
+      // Log all detected chat text for debugging
+      console.log('Chat detected:', line.text);
+      console.log('Processed message:', message);
+
+      // Check for "Amascut, the Devourer: Tear them apart" trigger
+      if (message.includes("amascut, the devourer: tear them apart") && !timerActive) {
+        console.log('🎯 TRIGGER DETECTED: Starting barricade timer (36s)');
+        startBarricadeTimer(36000); // 36 seconds
+      }
+
+      // Check for "Tumeken's heart, delivered to me by these mortals" trigger
+      else if (message.includes("tumeken's heart, delivered to me by these mortals") && !timerActive) {
+        console.log('🎯 TRIGGER DETECTED: Starting barricade timer (14s)');
+        startBarricadeTimer(14000); // 14 seconds
+      }
+
+      // Check for "Enough" cancellation
+      else if (message.includes("enough") && timerActive) {
+        console.log('🛑 CANCELLATION DETECTED: Stopping timer');
+        cancelTimer();
+      }
+
+      // Check for prayer switching alerts
+      else if (message.includes("all strength withers")) {
+        console.log('🛡️ PRAYER ALERT: Melee attack detected');
+        updateStatus("Pray Melee!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 3000);
+      }
+      else if (message.includes("i will not suffer this")) {
+        console.log('🛡️ PRAYER ALERT: Ranged attack detected');
+        updateStatus("Pray Ranged!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 3000);
+      }
+      else if (message.includes("your soul is weak")) {
+        console.log('🛡️ PRAYER ALERT: Magic attack detected');
+        updateStatus("Pray Magic!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 3000);
+      }
+
+      // Check for tri-colour attack warnings
+      else if ((message.includes("amascut, the devourer: grovel") ||
+                message.includes("amascut, the devourer: pathetic") ||
+                message.includes("amascut, the devourer: weak")) && !message.includes("tear them apart")) {
+        console.log('⚠️ TRI-ATTACK WARNING: Tri-colour attack incoming');
+        updateStatus("Tri-Colour Attack Incoming!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 3000);
+      }
+
+      // Check for Tumeken charge message
+      else if (message.includes("unite the last echoes of my power, and i will aid you")) {
+        console.log('⚡ TUMEKEN CHARGE: Time to charge');
+        updateStatus("Time to charge");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 3000);
+      }
+
+      // Check for scarab collection
+      else if (message.includes("the scarab is sucked into portal")) {
+        console.log('🪳 SCARAB COLLECTED');
+        incrementScarabCount();
+      }
+
+      // Check for Amascut attacking Tumeken
+      else if (message.includes("get out of my way")) {
+        console.log('⚔️ AMASCUT ATTACKING TUMEKEN');
+        updateStatus("Amascut attacking Tumeken!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 3000);
+      }
+
+      // Check for name-calling mechanic start
+      else if (message.includes("you are nothing")) {
+        console.log('🚨 NAME-CALLING MECHANIC START');
+        updateStatus("NAME-CALLING MECHANIC!");
+        // Cancel any active timers during this phase
+        if (timerActive) {
+          clearInterval(countdownInterval);
+          timerActive = false;
+          updateTimerDisplay("Mechanic Active", 'alert-active');
+        }
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 5000);
+      }
+
+      // Check for NW voke call
+      else if (message.includes("i am sorry, apmeken")) {
+        console.log('📍 NW VOKES CALLED');
+        updateStatus("NW Vokes!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 4000);
+      }
+
+      // Check for SW voke call
+      else if (message.includes("forgive me, het")) {
+        console.log('📍 SW VOKES CALLED');
+        updateStatus("SW Vokes!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 4000);
+      }
+
+      // Check for NE voke call
+      else if (message.includes("scabaras")) {
+        console.log('📍 NE VOKES CALLED');
+        updateStatus("NE Vokes!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 4000);
+      }
+
+      // Check for SE voke call
+      else if (message.includes("crondis")) {
+        console.log('📍 SE VOKES CALLED');
+        updateStatus("SE Vokes!");
+        setTimeout(() => {
+          updateStatus("Monitoring chat...");
+        }, 4000);
+      }
+    }
+  }
+  } catch (error) {
+    console.log('Error reading chat:', error);
+    handleError(error);
+  }
+}
+
+// Start the barricade timer with specified duration
+function startBarricadeTimer(duration = 14000) {
+  if (timerActive) return;
+
+  timerActive = true;
+  currentState = 'counting';
+  timerStartTime = Date.now(); // Record when timer started
+  timerEndTime = timerStartTime + duration;
+
+  const initialCount = Math.ceil(duration / 1000);
+  updateTimerDisplay(initialCount, 'countdown-green');
+  updateStatus("Barricade incoming...");
+
+  // Start countdown interval
+  countdownInterval = setInterval(function () {
+    updateCountdown();
+  }, 100);
+}
+
+// Update the countdown display
+function updateCountdown() {
+  if (!timerActive) return;
+
+  let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
+
+  if (remaining <= 0) {
+    // Timer expired - show barricade alert
+    showBarricadeAlert();
+  } else {
+    // Update countdown display with appropriate color
+    let colorClass = getCountdownColor(remaining);
+    updateTimerDisplay(remaining, colorClass);
+  }
+}
+
+// Get appropriate color class for countdown
+function getCountdownColor(seconds) {
+  if (seconds > 10) return 'countdown-green';
+  if (seconds > 5) return 'countdown-yellow';
+  return 'countdown-red';
+}
+
+// Show barricade ability alert
+function showBarricadeAlert() {
+  clearInterval(countdownInterval);
+  timerActive = false;
+  currentState = 'alert';
+
+  updateTimerDisplay("USE BARRICADE!", 'alert-active');
+  updateStatus("Ability ready!");
+
+  // Auto-reset after 5 seconds
+  setTimeout(function () {
+    resetTimer();
+  }, 5000);
+}
+
+// Cancel the timer when boss says "Enough" (only within 10 seconds of trigger)
+function cancelTimer() {
+  if (!timerActive) return;
+
+  // Check if "Enough" was said within 10 seconds of timer start
+  let timeSinceStart = Date.now() - timerStartTime;
+  if (timeSinceStart > 10000) { // 10 seconds in milliseconds
+    console.log("Ignoring 'Enough' - said after 10-second window");
+    return; // Don't cancel if outside the 10-second window
+  }
+
+  clearInterval(countdownInterval);
+  timerActive = false;
+  currentState = 'canceled';
+
+  updateTimerDisplay("Scarabs Skipped", 'canceled');
+  updateStatus("Timer canceled");
+
+  // Auto-reset after 3 seconds
+  setTimeout(function () {
+    resetTimer();
+  }, 3000);
+}
+
+// Reset timer to ready state
+function resetTimer() {
+  timerActive = false;
+  currentState = 'ready';
+  clearInterval(countdownInterval);
+
+  updateTimerDisplay("Waiting for<br>encounter", 'ready');
+  updateStatus("Monitoring chat...");
+}
+
+// Update timer display
+function updateTimerDisplay(text, className) {
+  const timerBox = document.getElementById('timerBox');
+  if (timerBox) {
+    // Add header for countdown numbers
+    if (!isNaN(text) && text !== "") {
+      timerBox.innerHTML = "Detonation in:<br>" + text;
+    } else {
+      // Check if text contains HTML (like <br>)
+      if (text.includes('<br>') || text.includes('<')) {
+        timerBox.innerHTML = text;
+      } else {
+        timerBox.textContent = text;
+      }
+    }
+    timerBox.className = 'timer-display ' + className;
+  }
+}
+
+// Update status message
+function updateStatus(message) {
+  const statusBox = document.getElementById('statusBox');
+  if (statusBox) {
+    if (message === "Tri-Colour Attack Incoming!") {
+      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
+    } else if (message === "Pray Magic!") {
+      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #0080ff;">' + message + '</span>';
+    } else if (message === "Pray Ranged!") {
+      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #00ff00;">' + message + '</span>';
+    } else if (message === "Pray Melee!") {
+      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
+    } else if (message === "NAME-CALLING MECHANIC!") {
+      statusBox.innerHTML = '<span style="font-size: 20px; font-weight: bold; color: #ff0000; text-decoration: underline;">' + message + '</span>';
+    } else if (message === "NW Vokes!" || message === "SW Vokes!" || message === "NE Vokes!" || message === "SE Vokes!") {
+      statusBox.innerHTML = '<span style="font-size: 22px; font-weight: bold; color: #ffff00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
+    } else {
+      statusBox.textContent = message;
+    }
+
+    // Update timer display to match status (unless timer is active)
+    updateTimerForStatus(message);
+  }
+}
+
+// Update timer display based on status
+function updateTimerForStatus(statusMessage) {
+  // Don't override active countdown
+  if (timerActive) return;
+
+  if (statusMessage === "Looking for chatbox...") {
+    updateTimerDisplay("Searching...", '');
+  } else if (statusMessage === "Ready - Monitoring chat..." || statusMessage === "Monitoring chat...") {
+    // Don't show anything when ready to monitor
+    updateTimerDisplay("", '');
+  } else if (statusMessage.includes("Barricade incoming")) {
+    // Timer will be updated by startBarricadeTimer
+  } else if (statusMessage === "Mechanic Active") {
+    updateTimerDisplay("Mechanic Active", 'alert-active');
+  }
+}
+
+// Handle errors
+function handleError(error) {
+  if (error.message == "capturehold failed") {
+    updateStatus("Error: Can't find RS client");
+  } else if (error.message.includes("No permission")) {
+    updateStatus("Error: No permission - Install app first");
+  } else if (error.message == "alt1 is not defined") {
+    updateStatus("Error: Alt1 not found - Open in Alt1");
+  } else {
+    updateStatus("Unknown error - Check console");
+    console.log("Error: " + error.message);
+  }
+}
+
+// Debug function (can be called from console)
+function debugStartTimer() {
+  startBarricadeTimer();
+}
+
+function debugCancelTimer() {
+  cancelTimer();
+}
+
+// Scarab counter functions
+function incrementScarabCount() {
+  scarabCount++;
+  console.log('Scarab count:', scarabCount);
+
+  // Clear existing timeout
+  if (scarabTimeout) {
+    clearTimeout(scarabTimeout);
+  }
+
+  if (scarabCount >= 4) {
+    // All scarabs collected
+    updateStatus("All scarabs collected!");
+    scarabCount = 0; // Reset for next phase
+    scarabTimeout = setTimeout(() => {
+      updateStatus("Monitoring chat...");
+    }, 3000);
+  } else {
+    // Show current count
+    updateStatus(`Scarabs: ${scarabCount}/4`);
+    // Set timeout to clear display after 5 seconds of inactivity
+    scarabTimeout = setTimeout(() => {
+      scarabCount = 0; // Reset counter
+      updateStatus("Monitoring chat...");
+    }, 5000);
+  }
+}
+
+// Make debug functions available globally
+window.debugStartTimer = debugStartTimer;
+window.debugCancelTimer = debugCancelTimer;

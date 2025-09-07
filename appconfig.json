@@ -1,0 +1,16 @@
+{
+    "appName": "BarricadeTimer",
+    "description": "Monitors chat for boss phrases and provides barricade ability timing.",
+    "appUrl": "./index.html",
+    "configUrl": "./appconfig.json",
+    "iconUrl": "./assets/favicon.png",
+    "defaultWidth": 300,
+    "defaultHeight": 120,
+    "minWidth": 250,
+    "minHeight": 100,
+    "maxWidth": 400,
+    "maxHeight": 150,
+    "requestHandlers": [],
+    "activators": [],
+    "permissions": "pixel,gamestate,overlay"
+}
