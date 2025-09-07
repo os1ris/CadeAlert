@@ -10,6 +10,7 @@ let countdownInterval = null;
 let timerEndTime = 0;
 let timerStartTime = 0;
 let currentState = 'ready'; // 'ready', 'counting', 'alert', 'canceled'
+let isHardMode = false; // Track difficulty mode
 
 // Scarab counter
 let scarabCount = 0;
@@ -38,7 +39,8 @@ let findChat = setInterval(function () {
     }
   } else {
     console.log("Chatbox found!");
-    updateStatus("Ready - Monitoring chat...");
+    const modeText = isHardMode ? "[HARD MODE]" : "[NORMAL MODE]";
+    updateStatus(`Ready - ${modeText} Monitoring chat...`);
     clearInterval(findChat);
 
     // Start monitoring chat
@@ -87,8 +89,9 @@ function readChatbox() {
 
       // Check for "Amascut, the Devourer: Tear them apart" trigger
       if (message.includes("amascut, the devourer: tear them apart") && !timerActive) {
-        console.log('🎯 TRIGGER DETECTED: Starting barricade timer (36s)');
-        startBarricadeTimer(36000); // 36 seconds
+        const mainAttackDuration = isHardMode ? 21000 : 36000; // 21s hard, 36s normal
+        console.log(`🎯 TRIGGER DETECTED: Starting barricade timer (${mainAttackDuration/1000}s) [${isHardMode ? 'HARD' : 'NORMAL'} MODE]`);
+        startBarricadeTimer(mainAttackDuration);
       }
 
       // Check for "Tumeken's heart, delivered to me by these mortals" trigger
@@ -433,6 +436,18 @@ function incrementScarabCount() {
   }
 }
 
-// Make debug functions available globally
+// Toggle between normal and hard mode
+function toggleMode() {
+  isHardMode = !isHardMode;
+  const modeText = isHardMode ? "HARD MODE" : "NORMAL MODE";
+  console.log(`🔄 MODE SWITCHED: Now in ${modeText}`);
+  updateStatus(`${modeText} - Monitoring chat...`);
+  setTimeout(() => {
+    updateStatus("Monitoring chat...");
+  }, 2000);
+}
+
+// Make functions available globally
 window.debugStartTimer = debugStartTimer;
 window.debugCancelTimer = debugCancelTimer;
+window.toggleMode = toggleMode;
