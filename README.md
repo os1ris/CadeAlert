@@ -12,6 +12,13 @@ A RuneScape Alt1 Toolkit plug-in that monitors chat for boss phrases and provide
 - **Color Detection**: Reads Amascut's specific colors (Blue #458391 for boss name, Green #99FF99 for messages)
 - **Visual Countdown**: Large, color-coded countdown display with "Detonation in:" header
 - **Prayer Alerts**: Automatic prayer switching alerts for melee, ranged, and magic attacks
+- **Mechanic Notifications**: Includes several visual alerts to help learn the boss fight mechanics:
+  - Green 1/Green 2 positioning indicators for "Your light will be snuffed out" phases
+  - KILL DOGS NOW alerts when Tumeken says "A new dawn"
+  - STAND BEHIND AMASCUT warnings for subjugation phases
+  - Enhanced scarab collection tracking with bigger, persistent displays
+  - Special alerts for Crondis name-calling phases ("NO SKULLS!")
+  - "Throw scarabs" reminders for Scabaras positioning
 - **Mechanic Warnings**: Alerts for tri-colour attacks and name-calling phases
 - **Scarab Counter**: Tracks scarab collection progress (0-4)
 - **Cancellation Support**: Cancels timer when boss says "Enough" within 10 seconds
