@@ -682,14 +682,14 @@ function startGreenFlip() {
   updateTimerDisplay("GREEN 1", 'alert-active');
   updateStatus("Green 1 Active!");
 
-  // Stop after 6 seconds and reset state
+  // Stop after 3 seconds and reset state
   greenFlipInterval = setTimeout(() => {
     greenFlipActive = false;
     greenFlipCount = 0;
     updateTimerDisplay("Waiting for<br>encounter", 'ready');
     updateStatus("Monitoring chat...");
     console.log('🟢 GREEN FLIP: Display stopped');
-  }, 6000);
+  }, 3000);
 }
 
 // KILL DOGS NOW alert function
