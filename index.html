@@ -28,18 +28,29 @@
             font-size: 36px;
             font-weight: bold;
             text-align: center;
-            margin: 10px 0;
-            min-height: 50px;
+            margin: 8px 5px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            word-wrap: break-word;
+            line-height: 1.1;
+            padding: 2px;
         }
 
         .status-message {
             font-size: 14px;
             text-align: center;
-            margin: 5px 0;
-            min-height: 20px;
+            margin: 5px;
+            height: 65px;
+            overflow: hidden;
+            word-wrap: break-word;
+            line-height: 1.2;
+            padding: 2px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .countdown-green { color: #00ff00; }
@@ -48,6 +59,126 @@
         .alert-active { color: #ff4444; animation: pulse 0.5s infinite; }
         .canceled { color: #888888; }
         .ready { color: #00ff00; }
+
+        /* Unified Alert Categories */
+        .alert-critical {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff4444;
+            animation: pulse 0.5s infinite;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .alert-prayer-melee {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff4444;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .alert-prayer-ranged {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .alert-prayer-magic {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0080ff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .alert-directional {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        }
+
+        .alert-info {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffaa00;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .alert-info-large {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffaa00;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        }
+
+        .alert-info-with-subtext {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff4444;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        }
+
+        .alert-info-subtext {
+            font-size: 14px;
+            color: #ffffff;
+            margin-top: 3px;
+            line-height: 1.2;
+        }
+
+        .alert-name-calling {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff0000;
+            text-decoration: underline;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .alert-status {
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        /* Responsive text scaling for different content lengths */
+        .timer-display div:first-child {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .timer-display div:last-child {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* Ensure text doesn't overflow containers */
+        .timer-display * {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .status-message * {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Special handling for very long alert messages */
+        .alert-critical,
+        .alert-directional,
+        .alert-info,
+        .alert-info-large,
+        .alert-name-calling {
+            max-width: 100%;
+            display: inline-block;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.1;
+        }
+
+        /* Compact layout for subtext alerts */
+        .alert-info-with-subtext {
+            margin-bottom: 1px;
+        }
 
         @keyframes pulse {
             0% { opacity: 1; }

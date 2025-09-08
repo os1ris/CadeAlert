@@ -611,18 +611,27 @@ function resetTimer() {
 function updateTimerDisplay(text, className) {
   const timerBox = document.getElementById('timerBox');
   if (timerBox) {
-    // Add header for countdown numbers
+    // Clear existing content and classes
+    timerBox.innerHTML = '';
+    timerBox.className = 'timer-display';
+
     if (!isNaN(text) && text !== "") {
-      timerBox.innerHTML = "Detonation in:<br>" + text;
-    } else {
-      // Check if text contains HTML (like <br>)
-      if (text.includes('<br>') || text.includes('<')) {
+      // Simple countdown number - add header
+      timerBox.innerHTML = '<div>Detonation in:</div><div>' + text + '</div>';
+    } else if (text && text.trim() !== "") {
+      // Check if text contains HTML
+      if (text.includes('<br>') || text.includes('<') || text.includes('>')) {
         timerBox.innerHTML = text;
       } else {
-        timerBox.textContent = text;
+        // Plain text - wrap in div for better control
+        timerBox.innerHTML = '<div>' + text + '</div>';
       }
     }
-    timerBox.className = 'timer-display ' + className;
+
+    // Apply the color class if provided
+    if (className && className.trim() !== "") {
+      timerBox.classList.add(className);
+    }
   }
 }
 
@@ -630,28 +639,43 @@ function updateTimerDisplay(text, className) {
 function updateStatus(message) {
   const statusBox = document.getElementById('statusBox');
   if (statusBox) {
+    // Clear any existing classes
+    statusBox.className = 'status-message';
+
     if (message === ALERT_MESSAGES.TRI_COLOUR_ATTACK) {
-      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
+      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.BEND_KNEE_ATTACK) {
-      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
+      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.PRAY_MAGIC) {
-      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #0080ff;">' + message + '</span>';
+      statusBox.innerHTML = '<span class="alert-prayer-magic">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.PRAY_RANGED) {
-      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #00ff00;">' + message + '</span>';
+      statusBox.innerHTML = '<span class="alert-prayer-ranged">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.PRAY_MELEE) {
-      statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
+      statusBox.innerHTML = '<span class="alert-prayer-melee">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.NAME_CALLING || message === ALERT_MESSAGES.NAME_CALLING_CRONDIS || message === ALERT_MESSAGES.NAME_CALLING_SCABARAS) {
-      statusBox.innerHTML = '<span style="font-size: 20px; font-weight: bold; color: #ff0000; text-decoration: underline;">' + message + '</span>';
+      statusBox.innerHTML = '<span class="alert-name-calling">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.NW_VOKES || message === ALERT_MESSAGES.SW_VOKES || message === ALERT_MESSAGES.NE_VOKES || message === ALERT_MESSAGES.SE_VOKES) {
-      statusBox.innerHTML = '<span style="font-size: 22px; font-weight: bold; color: #ffff00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
+      statusBox.innerHTML = '<span class="alert-directional">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.AMASCUT_ATTACKING) {
-      // Make Amascut attacking Tumeken message bigger with subtext
-      statusBox.innerHTML = '<div style="font-size: 24px; font-weight: bold; color: #ff4444; text-shadow: 2px 2px 4px #000;">' + message + '</div><div style="font-size: 14px; color: #ffffff; margin-top: 3px; line-height: 1.2;">Kill dogs & watch for your name!</div>';
-    } else if (message.includes(ALERT_MESSAGES.SCARABS_PREFIX) || message === ALERT_MESSAGES.ALL_SCARABS) {
-      // Make scarab messages bigger and more prominent
-      statusBox.innerHTML = '<span style="font-size: 24px; font-weight: bold; color: #ffaa00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
+      // Amascut attacking Tumeken with subtext
+      statusBox.innerHTML = '<div class="alert-info-with-subtext">' + message + '</div><div class="alert-info-subtext">Kill dogs & watch for your name!</div>';
+    } else if (message.includes(ALERT_MESSAGES.SCARABS_PREFIX)) {
+      // Scarab progress counter
+      statusBox.innerHTML = '<span class="alert-info">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.ALL_SCARABS) {
+      // All scarabs collected - larger and more prominent
+      statusBox.innerHTML = '<span class="alert-info-large">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.TUMEKEN_CHARGE) {
+      statusBox.innerHTML = '<span class="alert-info">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.KILL_DOGS) {
+      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.STAND_BEHIND) {
+      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.GREEN_1 || message === ALERT_MESSAGES.GREEN_2) {
+      statusBox.innerHTML = '<span class="alert-info">' + message + '</span>';
     } else {
-      statusBox.textContent = message;
+      // Default status messages
+      statusBox.innerHTML = '<span class="alert-status">' + message + '</span>';
     }
 
     // Update timer display to match status (unless timer is active)
@@ -932,3 +956,53 @@ function debugTriAttack() {
 
 // Make debug function available globally
 window.debugTriAttack = debugTriAttack;
+
+// Test function for layout stability
+function testLayoutStability() {
+  console.log('🧪 TESTING LAYOUT STABILITY');
+
+  const testMessages = [
+    ALERT_MESSAGES.PRAY_MELEE,
+    ALERT_MESSAGES.PRAY_RANGED,
+    ALERT_MESSAGES.PRAY_MAGIC,
+    ALERT_MESSAGES.TRI_COLOUR_ATTACK,
+    ALERT_MESSAGES.BEND_KNEE_ATTACK,
+    ALERT_MESSAGES.NAME_CALLING,
+    ALERT_MESSAGES.NW_VOKES,
+    ALERT_MESSAGES.NE_VOKES,
+    ALERT_MESSAGES.AMASCUT_ATTACKING,
+    ALERT_MESSAGES.ALL_SCARABS,
+    ALERT_MESSAGES.KILL_DOGS,
+    ALERT_MESSAGES.STAND_BEHIND,
+    "Very long test message that should wrap properly and not break the layout",
+    ALERT_MESSAGES.MONITORING_CHAT
+  ];
+
+  let index = 0;
+
+  const testInterval = setInterval(() => {
+    if (index < testMessages.length) {
+      console.log(`Testing: "${testMessages[index]}"`);
+      updateStatus(testMessages[index]);
+
+      // Also test timer display variations
+      if (index % 3 === 0) {
+        updateTimerDisplay("15", 'countdown-green');
+      } else if (index % 3 === 1) {
+        updateTimerDisplay("USE BARRICADE!<br>(5s left)", 'alert-active');
+      } else {
+        updateTimerDisplay("Detonation in:<br>10", 'countdown-yellow');
+      }
+
+      index++;
+    } else {
+      clearInterval(testInterval);
+      console.log('✅ Layout stability test completed');
+      updateStatus(ALERT_MESSAGES.READY_MONITORING);
+      updateTimerDisplay("", 'ready');
+    }
+  }, 1000);
+}
+
+// Make test function available globally
+window.testLayoutStability = testLayoutStability;
