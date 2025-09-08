@@ -78,9 +78,9 @@ export const ALERT_MESSAGES = {
   ABILITY_READY: "Ability ready!",
   BARRICADE_INCOMING: "Build for barricade...",
   TIMER_CANCELED: "Timer canceled",
-  MONITORING_CHAT: "Monitoring chat...",
+  MONITORING_CHAT: "Waitng for mechanic...",
   LOOKING_FOR_CHATBOX: "Looking for chatbox...",
-  READY_MONITORING: "Ready - Monitoring chat...",
+  READY_MONITORING: "Ready...",
   SEARCHING: "Searching...",
   MECHANIC_ACTIVE: "Mechanic Active",
   INITIALIZING: "Initializing..."
