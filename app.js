@@ -4,6 +4,94 @@
 // Enable "Add App" button for Alt1 Browser
 A1lib.identifyApp("appconfig.json");
 
+// Constants
+const TIMER_DURATIONS = {
+  HARD_MODE_ATTACK: 21000,    // 21 seconds
+  NORMAL_MODE_ATTACK: 36000,  // 36 seconds
+  SPECIAL_PHASE: 14000,       // 14 seconds
+  CANCEL_WINDOW: 10000,       // 10 seconds
+  ALERT_DURATION: 6000,       // 6 seconds
+  TRI_ATTACK_DURATION: 3000,  // 3 seconds
+  TUMEKEN_CHARGE_DURATION: 3000,
+  AMASCUT_ATTACK_DURATION: 3000,
+  NAME_CALLING_DELAY: 3600,   // 3.6 seconds
+  NAME_CALLING_ALERT: 5000,   // 5 seconds
+  VOKES_DURATION: 4000,       // 4 seconds
+  BEND_KNEE_DURATION: 3000,
+  GREEN_FLIP_DURATION: 3000,  // 3 seconds
+  KILL_DOGS_DURATION: 9000,   // 9 seconds
+  SUBJUGATION_DURATION: 8000, // 8 seconds
+  SCARAB_TIMEOUT: 12000,      // 12 seconds
+  SCARAB_ALERT_DURATION: 5000, // 5 seconds
+  RESET_DELAY: 2000,          // 2 seconds
+  CANCEL_RESET_DELAY: 3000    // 3 seconds
+};
+
+const CHAT_COLORS = [
+  A1lib.mixColor(255, 255, 255), // Normal Text White
+  A1lib.mixColor(69, 131, 145),  // Amascut Blue
+  A1lib.mixColor(153, 255, 153), // Amascut Green
+  A1lib.mixColor(196, 184, 72)   // Tumeken Gold
+];
+
+const MESSAGE_TRIGGERS = {
+  WELCOME: "welcome to your session against: amascut, the devourer",
+  TEAR_THEM_APART: "tear them apart",
+  TUMEKEN_HEART: "tumeken's heart, delivered to me by these mortals",
+  ENOUGH: "enough",
+  ALL_STRENGTH_WITHERS: "all strength withers",
+  I_WILL_NOT_SUFFER: "i will not suffer this",
+  YOUR_SOUL_IS_WEAK: "your soul is weak",
+  GROVEL: "grovel",
+  PATHETIC: "pathetic",
+  WEAK: "weak",
+  UNITE_POWER: "unite the last echoes of my power, and i will aid you",
+  SCARAB_COLLECTED: "the scarab is sucked into portal",
+  GET_OUT_OF_MY_WAY: "get out of my way",
+  YOU_ARE_NOTHING: "you are nothing",
+  I_AM_SORRY_APMEKEN: "i am sorry, apmeken",
+  FORGIVE_ME_HET: "forgive me, het",
+  SCABARAS: "scabaras..",
+  CRONDIS: "crondis... it should have never come to this",
+  BEND_THE_KNEE: "bend the knee",
+  LIGHT_SNUFFED: "your light will be snuffed out, once and for all",
+  NEW_DAWN: "a new dawn",
+  NOT_BE_SUBJUGATED: "i will not be subjugated"
+};
+
+const ALERT_MESSAGES = {
+  PRAY_MELEE: "Pray Melee!",
+  PRAY_RANGED: "Pray Ranged!",
+  PRAY_MAGIC: "Pray Magic!",
+  TRI_COLOUR_ATTACK: "Tri-Colour Attack Incoming!",
+  TUMEKEN_CHARGE: "Time to charge",
+  AMASCUT_ATTACKING: "Amascut attacking Tumeken!",
+  NAME_CALLING: "NAME-CALLING MECHANIC!",
+  NAME_CALLING_CRONDIS: "NAME-CALLING MECHANIC! NO SKULLS!",
+  NAME_CALLING_SCABARAS: "NAME-CALLING MECHANIC! THROW SCARABS!",
+  NW_VOKES: "NW Vokes!",
+  SW_VOKES: "SW Vokes!",
+  NE_VOKES: "NE Vokes! THROW SCARABS!",
+  SE_VOKES: "SE Vokes!",
+  BEND_KNEE_ATTACK: "Bend the Knee Attack Incoming!",
+  GREEN_1: "Green 1 Active!",
+  GREEN_2: "Green 2 Active!",
+  KILL_DOGS: "KILL DOGS NOW!",
+  STAND_BEHIND: "STAND BEHIND AMASCUT, KILL MINIONS!",
+  ALL_SCARABS: "All scarabs collected!",
+  SCARABS_PREFIX: "Scarabs: ",
+  SCARABS_SKIPPED: "Scarabs Skipped",
+  ABILITY_READY: "Ability ready!",
+  BARRICADE_INCOMING: "Barricade incoming...",
+  TIMER_CANCELED: "Timer canceled",
+  MONITORING_CHAT: "Monitoring chat...",
+  LOOKING_FOR_CHATBOX: "Looking for chatbox...",
+  READY_MONITORING: "Ready - Monitoring chat...",
+  SEARCHING: "Searching...",
+  MECHANIC_ACTIVE: "Mechanic Active",
+  INITIALIZING: "Initializing..."
+};
+
 // State management
 let timerActive = false;
 let countdownInterval = null;
@@ -11,6 +99,10 @@ let timerEndTime = 0;
 let timerStartTime = 0;
 let currentState = 'ready'; // 'ready', 'counting', 'alert', 'canceled'
 let isHardMode = true; // Track difficulty mode - default to hard mode
+
+// Backwards reading settings
+let backwardsReadingEnabled = true; // Enable/disable backwards reading
+let backwardsReadingDistance = 50; // Number of lines to read backwards
 
 // OCR Quality Validation - Timestamp tracking
 let oldLineTime = new Date();
@@ -75,7 +167,7 @@ function resetForNewInstance() {
 
   // Clear displays
   updateTimerDisplay("", 'ready');
-  updateStatus("Ready - Monitoring chat...");
+  updateStatus(ALERT_MESSAGES.READY_MONITORING);
 
   console.log('✅ Reset complete - App ready for new encounter');
 }
@@ -100,13 +192,8 @@ let greenFlipActive = false;
 // Chat reader setup - reading relevant chat colors
 let chatReader = new Chatbox.default();
 chatReader.readargs = {
-  colors: [
-    A1lib.mixColor(255, 255, 255), // Normal Text White
-    A1lib.mixColor(69, 131, 145),  // Amascut Blue
-    A1lib.mixColor(153, 255, 153), // Amascut Green
-    A1lib.mixColor(196, 184, 72)   // Tumeken Gold
-],
-  backwards: true,
+  colors: CHAT_COLORS,
+  backwards: backwardsReadingEnabled,
 };
 
 
@@ -116,14 +203,14 @@ let findChat = setInterval(function () {
   if (chatReader.pos === null) {
     try {
       chatReader.find();
-      updateStatus("Looking for chatbox...");
+      updateStatus(ALERT_MESSAGES.LOOKING_FOR_CHATBOX);
     } catch (e) {
       handleError(e);
     }
   } else {
     console.log("Chatbox found!");
     const modeText = isHardMode ? "[HARD MODE]" : "[NORMAL MODE]";
-    updateStatus(`Ready - ${modeText} Monitoring chat...`);
+    updateStatus(`${ALERT_MESSAGES.READY_MONITORING}${modeText}`);
     // Clear timer display when fully ready
     updateTimerDisplay("", 'ready');
     clearInterval(findChat);
@@ -133,8 +220,8 @@ let findChat = setInterval(function () {
       // Check if chatbox is still available
       if (chatReader.pos === null) {
         console.log('Chatbox lost - restarting search');
-        updateTimerDisplay("Searching...", '');
-        updateStatus("Looking for chatbox...");
+        updateTimerDisplay(ALERT_MESSAGES.SEARCHING, '');
+        updateStatus(ALERT_MESSAGES.LOOKING_FOR_CHATBOX);
         // Restart the chatbox search
         findChat = setInterval(function () {
           if (chatReader.pos === null) {
@@ -145,7 +232,7 @@ let findChat = setInterval(function () {
             }
           } else {
             console.log("Chatbox found again!");
-            updateStatus("Ready - Monitoring chat...");
+            updateStatus(ALERT_MESSAGES.READY_MONITORING);
             clearInterval(findChat);
           }
         }, 1000);
@@ -205,7 +292,7 @@ function readChatbox() {
           console.log('Processed message:', message);
 
           // Check for welcome message to reset for new instance
-      if (message.includes("welcome to your session against: amascut, the devourer")) {
+      if (message.includes(MESSAGE_TRIGGERS.WELCOME)) {
         console.log('🏰 WELCOME MESSAGE DETECTED: New Amascut instance started');
         resetForNewInstance();
         continue; // Skip other processing for this message
@@ -213,21 +300,21 @@ function readChatbox() {
 
       // Check for "Amascut, the Devourer: Tear them apart" trigger - HIGH PRIORITY DETECTION
       if (!timerActive && (
-          message.includes("tear them apart") ||
+          message.includes(MESSAGE_TRIGGERS.TEAR_THEM_APART) ||
           message.includes("tear them") ||
           message.includes("amascut") && message.includes("tear") ||
           message.includes("devourer") && message.includes("tear")
       )) {
-        const mainAttackDuration = isHardMode ? 21000 : 36000; // 21s hard, 36s normal
+        const mainAttackDuration = isHardMode ? TIMER_DURATIONS.HARD_MODE_ATTACK : TIMER_DURATIONS.NORMAL_MODE_ATTACK;
         console.log(`🎯 CRITICAL TRIGGER DETECTED: "${message}"`);
         console.log(`🚀 STARTING BARRICADE TIMER: ${mainAttackDuration/1000}s [${isHardMode ? 'HARD' : 'NORMAL'} MODE]`);
         startBarricadeTimer(mainAttackDuration);
       }
 
       // Check for "Tumeken's heart, delivered to me by these mortals" trigger
-      else if (message.includes("tumeken's heart, delivered to me by these mortals") && !timerActive) {
+      else if (message.includes(MESSAGE_TRIGGERS.TUMEKEN_HEART) && !timerActive) {
         console.log('🎯 TRIGGER DETECTED: Starting barricade timer (14s)');
-        startBarricadeTimer(14000); // 14 seconds
+        startBarricadeTimer(TIMER_DURATIONS.SPECIAL_PHASE);
       }
 
       // Check for "Enough" cancellation
@@ -237,65 +324,65 @@ function readChatbox() {
       }
 
       // Check for prayer switching alerts
-      else if (message.includes("all strength withers")) {
+      else if (message.includes(MESSAGE_TRIGGERS.ALL_STRENGTH_WITHERS)) {
         console.log('🛡️ PRAYER ALERT: Melee attack detected');
-        updateStatus("Pray Melee!");
+        updateStatus(ALERT_MESSAGES.PRAY_MELEE);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 6000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.ALERT_DURATION);
       }
-      else if (message.includes("i will not suffer this")) {
+      else if (message.includes(MESSAGE_TRIGGERS.I_WILL_NOT_SUFFER)) {
         console.log('🛡️ PRAYER ALERT: Ranged attack detected');
-        updateStatus("Pray Ranged!");
+        updateStatus(ALERT_MESSAGES.PRAY_RANGED);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 6000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.ALERT_DURATION);
       }
-      else if (message.includes("your soul is weak")) {
+      else if (message.includes(MESSAGE_TRIGGERS.YOUR_SOUL_IS_WEAK)) {
         console.log('🛡️ PRAYER ALERT: Magic attack detected');
-        updateStatus("Pray Magic!");
+        updateStatus(ALERT_MESSAGES.PRAY_MAGIC);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 6000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.ALERT_DURATION);
       }
 
       // Check for tri-colour attack warnings
-      else if ((message.includes("amascut, the devourer: grovel") ||
-                message.includes("amascut, the devourer: pathetic") ||
-                message.includes("amascut, the devourer: weak")) && !message.includes("tear them apart")) {
+      else if ((message.includes(MESSAGE_TRIGGERS.GROVEL) ||
+                message.includes(MESSAGE_TRIGGERS.PATHETIC) ||
+                message.includes(MESSAGE_TRIGGERS.WEAK)) && !message.includes(MESSAGE_TRIGGERS.TEAR_THEM_APART)) {
         console.log('⚠️ TRI-ATTACK WARNING: Tri-colour attack incoming');
-        updateStatus("Tri-Colour Attack Incoming!");
+        updateStatus(ALERT_MESSAGES.TRI_COLOUR_ATTACK);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 3000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.TRI_ATTACK_DURATION);
       }
 
       // Check for Tumeken charge message
-      else if (message.includes("unite the last echoes of my power, and i will aid you")) {
+      else if (message.includes(MESSAGE_TRIGGERS.UNITE_POWER)) {
         console.log('⚡ TUMEKEN CHARGE: Time to charge');
-        updateStatus("Time to charge");
+        updateStatus(ALERT_MESSAGES.TUMEKEN_CHARGE);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 3000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.TUMEKEN_CHARGE_DURATION);
       }
 
       // Check for scarab collection
-      else if (message.includes("the scarab is sucked into portal")) {
+      else if (message.includes(MESSAGE_TRIGGERS.SCARAB_COLLECTED)) {
         console.log('🪳 SCARAB COLLECTED');
         incrementScarabCount();
       }
 
       // Check for Amascut attacking Tumeken
-      else if (message.includes("get out of my way")) {
+      else if (message.includes(MESSAGE_TRIGGERS.GET_OUT_OF_MY_WAY)) {
         console.log('⚔️ AMASCUT ATTACKING TUMEKEN');
-        updateStatus("Amascut attacking Tumeken!");
+        updateStatus(ALERT_MESSAGES.AMASCUT_ATTACKING);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 3000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.AMASCUT_ATTACK_DURATION);
       }
 
       // Check for name-calling mechanic start
-      else if (message.includes("you are nothing")) {
+      else if (message.includes(MESSAGE_TRIGGERS.YOU_ARE_NOTHING)) {
         console.log('🚨 STATUE-CALLING MECHANIC START - Delaying 3.6s');
 
         // Clear any existing name-calling timeout
@@ -309,78 +396,78 @@ function readChatbox() {
 
           // Check which god was last spoken to and show appropriate message
           if (lastGodSpoken === 'crondis') {
-            updateStatus("NAME-CALLING MECHANIC! NO SKULLS!");
+            updateStatus(ALERT_MESSAGES.NAME_CALLING_CRONDIS);
           } else if (lastGodSpoken === 'scabaras') {
-            updateStatus("NAME-CALLING MECHANIC! THROW SCARABS!");
+            updateStatus(ALERT_MESSAGES.NAME_CALLING_SCABARAS);
           } else {
-            updateStatus("NAME-CALLING MECHANIC!");
+            updateStatus(ALERT_MESSAGES.NAME_CALLING);
           }
 
           // Cancel any active timers during this phase
           if (timerActive) {
             clearInterval(countdownInterval);
             timerActive = false;
-            updateTimerDisplay("Mechanic Active", 'alert-active');
+            updateTimerDisplay(ALERT_MESSAGES.MECHANIC_ACTIVE, 'alert-active');
           }
 
           // Clear the alert after 5 seconds
           setTimeout(() => {
-            updateStatus("Monitoring chat...");
-          }, 5000);
-        }, 3600); // 3.6 seconds delay
+            updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+          }, TIMER_DURATIONS.NAME_CALLING_ALERT);
+        }, TIMER_DURATIONS.NAME_CALLING_DELAY);
       }
 
       // Check for NW voke call
-      else if (message.includes("i am sorry, apmeken")) {
+      else if (message.includes(MESSAGE_TRIGGERS.I_AM_SORRY_APMEKEN)) {
         console.log('📍 NW VOKES CALLED');
         lastGodSpoken = 'apmeken';
-        updateStatus("NW Vokes!");
+        updateStatus(ALERT_MESSAGES.NW_VOKES);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 4000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.VOKES_DURATION);
       }
 
       // Check for SW voke call
-      else if (message.includes("forgive me, het")) {
+      else if (message.includes(MESSAGE_TRIGGERS.FORGIVE_ME_HET)) {
         console.log('📍 SW VOKES CALLED');
         lastGodSpoken = 'het';
-        updateStatus("SW Vokes!");
+        updateStatus(ALERT_MESSAGES.SW_VOKES);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 4000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.VOKES_DURATION);
       }
 
       // Check for NE voke call - SPECIFIC DETECTION to avoid false positives
-      else if (message === "scabaras.." || (message.includes("scabaras..") && message.length < 20)) {
+      else if (message === MESSAGE_TRIGGERS.SCABARAS || (message.includes(MESSAGE_TRIGGERS.SCABARAS) && message.length < 20)) {
         console.log('📍 NE VOKES CALLED - Scabaras called');
         lastGodSpoken = 'scabaras';
-        updateStatus("NE Vokes! THROW SCARABS!");
+        updateStatus(ALERT_MESSAGES.NE_VOKES);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 4000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.VOKES_DURATION);
       }
 
       // Check for SE voke call
-      else if (message.includes("crondis... it should have never come to this")) {
+      else if (message.includes(MESSAGE_TRIGGERS.CRONDIS)) {
         console.log('📍 SE VOKES CALLED');
         lastGodSpoken = 'crondis';
-        updateStatus("SE Vokes!");
+        updateStatus(ALERT_MESSAGES.SE_VOKES);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 4000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.VOKES_DURATION);
       }
 
       // Check for "Bend the Knee" attack
-      else if (message.includes("bend the knee")) {
+      else if (message.includes(MESSAGE_TRIGGERS.BEND_THE_KNEE)) {
         console.log('⚔️ BEND THE KNEE ATTACK: Incoming attack detected');
-        updateStatus("Bend the Knee Attack Incoming!");
+        updateStatus(ALERT_MESSAGES.BEND_KNEE_ATTACK);
         setTimeout(() => {
-          updateStatus("Monitoring chat...");
-        }, 3000);
+          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+        }, TIMER_DURATIONS.BEND_KNEE_DURATION);
       }
 
       // Check for Amascut's "Your light will be snuffed out" message
-      else if (message.includes("your light will be snuffed out, once and for all")) {
+      else if (message.includes(MESSAGE_TRIGGERS.LIGHT_SNUFFED)) {
         greenFlipCount++;
         console.log(`🟢 LIGHT SNUFFED: Green flip count ${greenFlipCount}`);
 
@@ -391,18 +478,18 @@ function readChatbox() {
         } else {
           // Subsequent detection - toggle to Green 2
           updateTimerDisplay("GREEN 2", 'alert-active');
-          updateStatus("Green 2 Active!");
+          updateStatus(ALERT_MESSAGES.GREEN_2);
         }
       }
 
       // Check for Tumeken's "A new dawn" message
-      else if (message.includes("a new dawn")) {
+      else if (message.includes(MESSAGE_TRIGGERS.NEW_DAWN)) {
         console.log('🐕 NEW DAWN: Starting KILL DOGS NOW alert');
         showKillDogsAlert();
       }
 
       // Check for Amascut's "I will not be subjugated" message
-      else if (message.includes("i will not be subjugated")) {
+      else if (message.includes(MESSAGE_TRIGGERS.NOT_BE_SUBJUGATED)) {
         console.log('👑 SUBJUGATION: Starting stand behind alert');
         showSubjugationAlert();
       }
@@ -418,7 +505,7 @@ function readChatbox() {
 }
 
 // Start the barricade timer with specified duration
-function startBarricadeTimer(duration = 14000) {
+function startBarricadeTimer(duration = TIMER_DURATIONS.SPECIAL_PHASE) {
   if (timerActive) return;
 
   timerActive = true;
@@ -428,7 +515,7 @@ function startBarricadeTimer(duration = 14000) {
 
   const initialCount = Math.ceil(duration / 1000);
   updateTimerDisplay(initialCount, 'countdown-green');
-  updateStatus("Barricade incoming...");
+  updateStatus(ALERT_MESSAGES.BARRICADE_INCOMING);
 
   // Start countdown interval
   countdownInterval = setInterval(function () {
@@ -465,7 +552,7 @@ function showBarricadeAlert() {
   timerActive = false;
   currentState = 'alert';
 
-  updateStatus("Ability ready!");
+  updateStatus(ALERT_MESSAGES.ABILITY_READY);
 
   // Start live countdown for barricade alert
   countdownInterval = setInterval(function () {
@@ -480,7 +567,7 @@ function showBarricadeAlert() {
       // Keep the alert visible for a bit longer
       setTimeout(function () {
         resetTimer();
-      }, 2000);
+      }, TIMER_DURATIONS.RESET_DELAY);
     }
   }, 100);
 }
@@ -491,7 +578,7 @@ function cancelTimer() {
 
   // Check if "Enough" was said within 10 seconds of timer start
   let timeSinceStart = Date.now() - timerStartTime;
-  if (timeSinceStart > 10000) { // 10 seconds in milliseconds
+  if (timeSinceStart > TIMER_DURATIONS.CANCEL_WINDOW) {
     console.log("Ignoring 'Enough' - said after 10-second window");
     return; // Don't cancel if outside the 10-second window
   }
@@ -500,13 +587,13 @@ function cancelTimer() {
   timerActive = false;
   currentState = 'canceled';
 
-  updateTimerDisplay("Scarabs Skipped", 'canceled');
-  updateStatus("Timer canceled");
+  updateTimerDisplay(ALERT_MESSAGES.SCARABS_SKIPPED, 'canceled');
+  updateStatus(ALERT_MESSAGES.TIMER_CANCELED);
 
   // Auto-reset after 3 seconds
   setTimeout(function () {
     resetTimer();
-  }, 3000);
+  }, TIMER_DURATIONS.CANCEL_RESET_DELAY);
 }
 
 // Reset timer to ready state
@@ -516,7 +603,7 @@ function resetTimer() {
   clearInterval(countdownInterval);
 
   updateTimerDisplay("", 'ready');
-  updateStatus("Monitoring chat...");
+  updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
 }
 
 // Update timer display
@@ -542,24 +629,24 @@ function updateTimerDisplay(text, className) {
 function updateStatus(message) {
   const statusBox = document.getElementById('statusBox');
   if (statusBox) {
-    if (message === "Tri-Colour Attack Incoming!") {
+    if (message === ALERT_MESSAGES.TRI_COLOUR_ATTACK) {
       statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
-    } else if (message === "Bend the Knee Attack Incoming!") {
+    } else if (message === ALERT_MESSAGES.BEND_KNEE_ATTACK) {
       statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
-    } else if (message === "Pray Magic!") {
+    } else if (message === ALERT_MESSAGES.PRAY_MAGIC) {
       statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #0080ff;">' + message + '</span>';
-    } else if (message === "Pray Ranged!") {
+    } else if (message === ALERT_MESSAGES.PRAY_RANGED) {
       statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #00ff00;">' + message + '</span>';
-    } else if (message === "Pray Melee!") {
+    } else if (message === ALERT_MESSAGES.PRAY_MELEE) {
       statusBox.innerHTML = '<span style="font-size: 18px; font-weight: bold; color: #ff4444;">' + message + '</span>';
-    } else if (message === "NAME-CALLING MECHANIC!") {
+    } else if (message === ALERT_MESSAGES.NAME_CALLING || message === ALERT_MESSAGES.NAME_CALLING_CRONDIS || message === ALERT_MESSAGES.NAME_CALLING_SCABARAS) {
       statusBox.innerHTML = '<span style="font-size: 20px; font-weight: bold; color: #ff0000; text-decoration: underline;">' + message + '</span>';
-    } else if (message === "NW Vokes!" || message === "SW Vokes!" || message === "NE Vokes!" || message === "SE Vokes!") {
+    } else if (message === ALERT_MESSAGES.NW_VOKES || message === ALERT_MESSAGES.SW_VOKES || message === ALERT_MESSAGES.NE_VOKES || message === ALERT_MESSAGES.SE_VOKES) {
       statusBox.innerHTML = '<span style="font-size: 22px; font-weight: bold; color: #ffff00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
-    } else if (message === "Amascut attacking Tumeken!") {
+    } else if (message === ALERT_MESSAGES.AMASCUT_ATTACKING) {
       // Make Amascut attacking Tumeken message bigger with subtext
       statusBox.innerHTML = '<div style="font-size: 24px; font-weight: bold; color: #ff4444; text-shadow: 2px 2px 4px #000;">' + message + '</div><div style="font-size: 14px; color: #ffffff; margin-top: 3px; line-height: 1.2;">Kill dogs & watch for your name!</div>';
-    } else if (message.includes("Scarabs:") || message === "All scarabs collected!") {
+    } else if (message.includes(ALERT_MESSAGES.SCARABS_PREFIX) || message === ALERT_MESSAGES.ALL_SCARABS) {
       // Make scarab messages bigger and more prominent
       statusBox.innerHTML = '<span style="font-size: 24px; font-weight: bold; color: #ffaa00; text-shadow: 2px 2px 4px #000;">' + message + '</span>';
     } else {
@@ -576,15 +663,15 @@ function updateTimerForStatus(statusMessage) {
   // Don't override active countdown
   if (timerActive) return;
 
-  if (statusMessage === "Looking for chatbox...") {
-    updateTimerDisplay("Searching...", '');
-  } else if (statusMessage === "Ready - Monitoring chat..." || statusMessage === "Monitoring chat...") {
+  if (statusMessage === ALERT_MESSAGES.LOOKING_FOR_CHATBOX) {
+    updateTimerDisplay(ALERT_MESSAGES.SEARCHING, '');
+  } else if (statusMessage === ALERT_MESSAGES.READY_MONITORING || statusMessage === ALERT_MESSAGES.MONITORING_CHAT) {
     // Don't show anything when ready to monitor
     updateTimerDisplay("", '');
-  } else if (statusMessage.includes("Barricade incoming")) {
+  } else if (statusMessage.includes(ALERT_MESSAGES.BARRICADE_INCOMING)) {
     // Timer will be updated by startBarricadeTimer
-  } else if (statusMessage === "Mechanic Active") {
-    updateTimerDisplay("Mechanic Active", 'alert-active');
+  } else if (statusMessage === ALERT_MESSAGES.MECHANIC_ACTIVE) {
+    updateTimerDisplay(ALERT_MESSAGES.MECHANIC_ACTIVE, 'alert-active');
   }
 }
 
@@ -611,6 +698,35 @@ function debugCancelTimer() {
   cancelTimer();
 }
 
+// Backwards reading debug functions
+function toggleBackwardsReading() {
+  backwardsReadingEnabled = !backwardsReadingEnabled;
+  console.log(`🔄 BACKWARDS READING: ${backwardsReadingEnabled ? 'ENABLED' : 'DISABLED'}`);
+  updateStatus(`Backwards reading ${backwardsReadingEnabled ? 'enabled' : 'disabled'}`);
+  setTimeout(() => {
+    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+  }, 2000);
+}
+
+function setBackwardsReadingDistance(distance) {
+  backwardsReadingDistance = Math.max(1, Math.min(100, distance)); // Clamp between 1-100
+  console.log(`📏 BACKWARDS READING DISTANCE: ${backwardsReadingDistance} lines`);
+  updateStatus(`Backwards distance: ${backwardsReadingDistance}`);
+  setTimeout(() => {
+    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+  }, 2000);
+}
+
+function getBackwardsReadingSettings() {
+  console.log('🔧 BACKWARDS READING SETTINGS:');
+  console.log(`  Enabled: ${backwardsReadingEnabled}`);
+  console.log(`  Distance: ${backwardsReadingDistance} lines`);
+  return {
+    enabled: backwardsReadingEnabled,
+    distance: backwardsReadingDistance
+  };
+}
+
 // Scarab counter functions
 function incrementScarabCount() {
   scarabCount++;
@@ -624,21 +740,21 @@ function incrementScarabCount() {
 
   if (scarabCount >= 4) {
     // All scarabs collected
-    updateStatus("All scarabs collected!");
+    updateStatus(ALERT_MESSAGES.ALL_SCARABS);
     scarabCount = 0; // Reset for next phase
     scarabTimeout = setTimeout(() => {
-      updateStatus("Monitoring chat...");
+      updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
       scarabTimeout = null;
-    }, 5000); // Keep "All collected" visible for 5 seconds
+    }, TIMER_DURATIONS.SCARAB_ALERT_DURATION);
   } else {
     // Show current count - force immediate update
-    updateStatus(`Scarabs: ${scarabCount}/4`);
+    updateStatus(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4`);
     // Set timeout to clear display after 12 seconds of inactivity
     scarabTimeout = setTimeout(() => {
       scarabCount = 0; // Reset counter
-      updateStatus("Monitoring chat...");
+      updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
       scarabTimeout = null;
-    }, 12000);
+    }, TIMER_DURATIONS.SCARAB_TIMEOUT);
   }
 }
 
@@ -688,14 +804,14 @@ function startGreenFlip() {
 
   // Show Green 1 initially
   updateTimerDisplay("GREEN 1", 'alert-active');
-  updateStatus("Green 1 Active!");
+  updateStatus(ALERT_MESSAGES.GREEN_1);
 
   // Clear display after 3 seconds but preserve state for toggling
   greenFlipInterval = setTimeout(() => {
     updateTimerDisplay("", 'ready');
-    updateStatus("Monitoring chat...");
+    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
     console.log('🟢 GREEN FLIP: Display cleared, state preserved for toggling');
-  }, 3000);
+  }, TIMER_DURATIONS.GREEN_FLIP_DURATION);
 }
 
 // KILL DOGS NOW alert function
@@ -716,15 +832,15 @@ function showKillDogsAlert() {
   }
 
   // Clear all displays and show KILL DOGS NOW
-  updateTimerDisplay("KILL DOGS NOW", 'alert-active');
-  updateStatus("KILL DOGS NOW!");
+  updateTimerDisplay(ALERT_MESSAGES.KILL_DOGS, 'alert-active');
+  updateStatus(ALERT_MESSAGES.KILL_DOGS);
 
   // Reset after 9 seconds
   killDogsTimeout = setTimeout(() => {
     updateTimerDisplay("", 'ready');
-    updateStatus("Monitoring chat...");
+    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
     console.log('🐕 KILL DOGS: Alert ended');
-  }, 9000);
+  }, TIMER_DURATIONS.KILL_DOGS_DURATION);
 }
 
 // Stand behind Amascut alert function
@@ -749,14 +865,14 @@ function showSubjugationAlert() {
 
   // Clear all displays and show STAND BEHIND AMASCUT
   updateTimerDisplay("STAND BEHIND<br>AMASCUT", 'alert-active');
-  updateStatus("STAND BEHIND AMASCUT, KILL MINIONS!");
+  updateStatus(ALERT_MESSAGES.STAND_BEHIND);
 
   // Reset after 8 seconds
   subjugationTimeout = setTimeout(() => {
     updateTimerDisplay("", 'ready');
-    updateStatus("Monitoring chat...");
+    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
     console.log('👑 SUBJUGATION: Alert ended');
-  }, 8000);
+  }, TIMER_DURATIONS.SUBJUGATION_DURATION);
 }
 
 // Debug function for testing reset
@@ -769,6 +885,12 @@ function debugReset() {
 window.debugStartTimer = debugStartTimer;
 window.debugCancelTimer = debugCancelTimer;
 window.debugReset = debugReset;
+
+// Backwards reading functions
+window.toggleBackwardsReading = toggleBackwardsReading;
+window.setBackwardsReadingDistance = setBackwardsReadingDistance;
+window.getBackwardsReadingSettings = getBackwardsReadingSettings;
+
 // window.toggleMode = toggleMode; // COMMENTED OUT
 // window.updateToggleButton = updateToggleButton; // COMMENTED OUT
 
