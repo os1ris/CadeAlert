@@ -131,6 +131,14 @@ export function setLastGodSpoken(god) {
   lastGodSpoken = god;
 }
 
+/**
+ * Update isGreenOne state
+ * @param {boolean} value - The new value for isGreenOne
+ */
+export function setIsGreenOne(value) {
+  isGreenOne = value;
+}
+
 // Scarab counter
 export let scarabCount = 0;
 export let scarabTimeout = null;

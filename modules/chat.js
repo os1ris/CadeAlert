@@ -11,7 +11,8 @@ import {
   lastGodSpoken,
   isGreenOne,
   greenFlipActive,
-  timerActive
+  timerActive,
+  setIsGreenOne
 } from './state.js';
 import { validateMessageTimestamp, showTemporaryAlert, updateTimerDisplay, updateStatus } from './helpers.js';
 import { startBarricadeTimer, cancelTimer } from './timer.js';
@@ -266,7 +267,7 @@ function processMessageTriggers(message) {
   // Check for Amascut's "Your light will be snuffed out" message
   if (message.includes(MESSAGE_TRIGGERS.LIGHT_SNUFFED)) {
     // Toggle between Green 1 and Green 2
-    isGreenOne = !isGreenOne;
+    setIsGreenOne(!isGreenOne);
     console.log(`🟢 LIGHT SNUFFED: ${isGreenOne ? 'Green 1' : 'Green 2'}`);
 
     if (isGreenOne) {
