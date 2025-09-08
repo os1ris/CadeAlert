@@ -9,7 +9,7 @@ import {
   updateOldLineTime,
   isHardMode,
   lastGodSpoken,
-  greenFlipCount,
+  isGreenOne,
   greenFlipActive,
   timerActive
 } from './state.js';
@@ -265,17 +265,18 @@ function processMessageTriggers(message) {
 
   // Check for Amascut's "Your light will be snuffed out" message
   if (message.includes(MESSAGE_TRIGGERS.LIGHT_SNUFFED)) {
-    greenFlipCount++;
-    console.log(`🟢 LIGHT SNUFFED: Green flip count ${greenFlipCount}`);
+    // Toggle between Green 1 and Green 2
+    isGreenOne = !isGreenOne;
+    console.log(`🟢 LIGHT SNUFFED: ${isGreenOne ? 'Green 1' : 'Green 2'}`);
 
-    if (!greenFlipActive) {
-      // First detection - start the mechanic
-      greenFlipActive = true;
-      startGreenFlip();
+    if (isGreenOne) {
+      startGreenFlip(); // Shows Green 1
     } else {
-      // Subsequent detection - toggle to Green 2
-      toggleGreenFlip();
+      toggleGreenFlip(); // Shows Green 2
     }
+
+    // Mark mechanic as active
+    greenFlipActive = true;
     return;
   }
 

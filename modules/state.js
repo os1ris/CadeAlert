@@ -145,7 +145,7 @@ export let nameCallingTimeout = null;
 export let lastGodSpoken = null;
 
 // Track Green 1/Green 2 mechanic state
-export let greenFlipCount = 0;
+export let isGreenOne = true; // true = Green 1, false = Green 2
 export let greenFlipActive = false;
 
 /**
@@ -165,7 +165,7 @@ export function resetState() {
   subjugationTimeout = null;
   nameCallingTimeout = null;
   lastGodSpoken = null;
-  greenFlipCount = 0;
+  isGreenOne = true;
   greenFlipActive = false;
 }
 
@@ -179,7 +179,7 @@ export function getStateInfo() {
     isHardMode,
     scarabCount,
     lastGodSpoken,
-    greenFlipCount,
+    isGreenOne,
     greenFlipActive,
     backwardsReadingEnabled,
     backwardsReadingDistance

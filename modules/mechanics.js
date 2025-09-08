@@ -10,7 +10,7 @@ import {
   subjugationTimeout,
   nameCallingTimeout,
   lastGodSpoken,
-  greenFlipCount,
+  isGreenOne,
   greenFlipActive,
   timerActive,
   countdownInterval,
@@ -86,8 +86,7 @@ export function startGreenFlip() {
 export function toggleGreenFlip() {
   if (!greenFlipActive) return;
 
-  greenFlipCount++;
-  console.log(`🟢 LIGHT SNUFFED: Green flip count ${greenFlipCount}`);
+  console.log('🟢 LIGHT SNUFFED: Green 2');
 
   // Only update timer display if no barricade timer is active
   if (!timerActive) {
