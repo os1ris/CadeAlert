@@ -13,7 +13,16 @@ import {
   greenFlipCount,
   greenFlipActive,
   timerActive,
-  countdownInterval
+  countdownInterval,
+  setScarabTimeout,
+  setGreenFlipInterval,
+  setKillDogsTimeout,
+  setSubjugationTimeout,
+  setNameCallingTimeout,
+  setScarabCount,
+  setLastGodSpoken,
+  setTimerActive,
+  setCountdownInterval
 } from './state.js';
 import { updateTimerDisplay, updateStatus, clearAllMechanicTimeouts, resetDisplays } from './helpers.js';
 
@@ -27,26 +36,26 @@ export function incrementScarabCount() {
   // Clear existing timeout to reset the inactivity timer
   if (scarabTimeout) {
     clearTimeout(scarabTimeout);
-    scarabTimeout = null;
+    setScarabTimeout(null);
   }
 
   if (scarabCount >= 4) {
     // All scarabs collected
     updateStatus(ALERT_MESSAGES.ALL_SCARABS);
-    scarabCount = 0; // Reset for next phase
-    scarabTimeout = setTimeout(() => {
+    setScarabCount(0); // Reset for next phase
+    setScarabTimeout(setTimeout(() => {
       updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-      scarabTimeout = null;
-    }, TIMER_DURATIONS.SCARAB_ALERT_DURATION);
+      setScarabTimeout(null);
+    }, TIMER_DURATIONS.SCARAB_ALERT_DURATION));
   } else {
     // Show current count - force immediate update
     updateStatus(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4`);
     // Set timeout to clear display after 12 seconds of inactivity
-    scarabTimeout = setTimeout(() => {
-      scarabCount = 0; // Reset counter
+    setScarabTimeout(setTimeout(() => {
+      setScarabCount(0); // Reset counter
       updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-      scarabTimeout = null;
-    }, TIMER_DURATIONS.SCARAB_TIMEOUT);
+      setScarabTimeout(null);
+    }, TIMER_DURATIONS.SCARAB_TIMEOUT));
   }
 }
 
@@ -66,11 +75,11 @@ export function startGreenFlip() {
   updateStatus(ALERT_MESSAGES.GREEN_1);
 
   // Clear display after 3 seconds but preserve state for toggling
-  greenFlipInterval = setTimeout(() => {
+  setGreenFlipInterval(setTimeout(() => {
     updateTimerDisplay("", 'ready');
     updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
     console.log('🟢 GREEN FLIP: Display cleared, state preserved for toggling');
-  }, TIMER_DURATIONS.GREEN_FLIP_DURATION);
+  }, TIMER_DURATIONS.GREEN_FLIP_DURATION));
 }
 
 /**
@@ -100,10 +109,10 @@ export function showKillDogsAlert() {
   updateStatus(ALERT_MESSAGES.KILL_DOGS);
 
   // Reset after 9 seconds
-  killDogsTimeout = setTimeout(() => {
+  setKillDogsTimeout(setTimeout(() => {
     resetDisplays();
     console.log('🐕 KILL DOGS: Alert ended');
-  }, TIMER_DURATIONS.KILL_DOGS_DURATION);
+  }, TIMER_DURATIONS.KILL_DOGS_DURATION));
 }
 
 /**
@@ -120,10 +129,10 @@ export function showSubjugationAlert() {
   updateStatus(ALERT_MESSAGES.STAND_BEHIND);
 
   // Reset after 8 seconds
-  subjugationTimeout = setTimeout(() => {
+  setSubjugationTimeout(setTimeout(() => {
     resetDisplays();
     console.log('👑 SUBJUGATION: Alert ended');
-  }, TIMER_DURATIONS.SUBJUGATION_DURATION);
+  }, TIMER_DURATIONS.SUBJUGATION_DURATION));
 }
 
 /**
@@ -138,7 +147,7 @@ export function handleNameCallingMechanic() {
   }
 
   // Delay the alert by 3.6 seconds
-  nameCallingTimeout = setTimeout(() => {
+  setNameCallingTimeout(setTimeout(() => {
     console.log('🚨 NAME-CALLING MECHANIC: Alert triggered');
 
     // Check which god was last spoken to and show appropriate message
@@ -153,7 +162,7 @@ export function handleNameCallingMechanic() {
     // Cancel any active timers during this phase
     if (timerActive) {
       clearInterval(countdownInterval);
-      timerActive = false;
+      setTimerActive(false);
       updateTimerDisplay(ALERT_MESSAGES.MECHANIC_ACTIVE, 'alert-active');
     }
 
@@ -161,7 +170,7 @@ export function handleNameCallingMechanic() {
     setTimeout(() => {
       updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
     }, TIMER_DURATIONS.NAME_CALLING_ALERT);
-  }, TIMER_DURATIONS.NAME_CALLING_DELAY);
+  }, TIMER_DURATIONS.NAME_CALLING_DELAY));
 }
 
 /**
@@ -169,5 +178,5 @@ export function handleNameCallingMechanic() {
  * @param {string} god - The god that was spoken to ('apmeken', 'het', 'scabaras', 'crondis')
  */
 export function updateLastGodSpoken(god) {
-  lastGodSpoken = god;
+  setLastGodSpoken(god);
 }

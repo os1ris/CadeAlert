@@ -2,7 +2,7 @@
 // Contains utility functions for code optimization and common operations
 
 import { TIMER_DURATIONS, ALERT_MESSAGES } from './constants.js';
-import { resetState, scarabTimeout, greenFlipInterval, killDogsTimeout, subjugationTimeout, nameCallingTimeout, timerActive } from './state.js';
+import { resetState, scarabTimeout, greenFlipInterval, killDogsTimeout, subjugationTimeout, nameCallingTimeout, timerActive, setScarabTimeout, setGreenFlipInterval, setKillDogsTimeout, setSubjugationTimeout, setNameCallingTimeout } from './state.js';
 
 /**
  * Clear all mechanic-related timeouts and intervals
@@ -13,23 +13,23 @@ export function clearAllMechanicTimeouts() {
 
   if (greenFlipInterval) {
     clearTimeout(greenFlipInterval);
-    greenFlipInterval = null;
+    setGreenFlipInterval(null);
   }
   if (killDogsTimeout) {
     clearTimeout(killDogsTimeout);
-    killDogsTimeout = null;
+    setKillDogsTimeout(null);
   }
   if (subjugationTimeout) {
     clearTimeout(subjugationTimeout);
-    subjugationTimeout = null;
+    setSubjugationTimeout(null);
   }
   if (scarabTimeout) {
     clearTimeout(scarabTimeout);
-    scarabTimeout = null;
+    setScarabTimeout(null);
   }
   if (nameCallingTimeout) {
     clearTimeout(nameCallingTimeout);
-    nameCallingTimeout = null;
+    setNameCallingTimeout(null);
   }
 }
 

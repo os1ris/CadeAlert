@@ -18,6 +18,110 @@ export let backwardsReadingDistance = 50; // Number of lines to read backwards
 // OCR Quality Validation - Timestamp tracking
 export let oldLineTime = new Date();
 
+/**
+ * Update the old line time for OCR validation
+ * @param {Date} newTime - The new timestamp to set
+ */
+export function updateOldLineTime(newTime) {
+  oldLineTime = newTime;
+}
+
+/**
+ * Update timer active state
+ * @param {boolean} active - Whether timer is active
+ */
+export function setTimerActive(active) {
+  timerActive = active;
+}
+
+/**
+ * Update current state
+ * @param {string} state - The new state
+ */
+export function setCurrentState(state) {
+  currentState = state;
+}
+
+/**
+ * Update timer start time
+ * @param {number} time - The start time in milliseconds
+ */
+export function setTimerStartTime(time) {
+  timerStartTime = time;
+}
+
+/**
+ * Update timer end time
+ * @param {number} time - The end time in milliseconds
+ */
+export function setTimerEndTime(time) {
+  timerEndTime = time;
+}
+
+/**
+ * Update countdown interval
+ * @param {number} interval - The interval ID
+ */
+export function setCountdownInterval(interval) {
+  countdownInterval = interval;
+}
+
+/**
+ * Update scarab timeout
+ * @param {number} timeout - The timeout ID
+ */
+export function setScarabTimeout(timeout) {
+  scarabTimeout = timeout;
+}
+
+/**
+ * Update green flip interval
+ * @param {number} interval - The interval ID
+ */
+export function setGreenFlipInterval(interval) {
+  greenFlipInterval = interval;
+}
+
+/**
+ * Update kill dogs timeout
+ * @param {number} timeout - The timeout ID
+ */
+export function setKillDogsTimeout(timeout) {
+  killDogsTimeout = timeout;
+}
+
+/**
+ * Update subjugation timeout
+ * @param {number} timeout - The timeout ID
+ */
+export function setSubjugationTimeout(timeout) {
+  subjugationTimeout = timeout;
+}
+
+/**
+ * Update name calling timeout
+ * @param {number} timeout - The timeout ID
+ */
+export function setNameCallingTimeout(timeout) {
+  nameCallingTimeout = timeout;
+}
+
+/**
+ * Update scarab count
+ * @param {number} count - The new scarab count
+ */
+export function setScarabCount(count) {
+  scarabCount = count;
+}
+
+/**
+ * Update last god spoken
+ * @param {string} god - The god that was spoken to
+ */
+export function setLastGodSpoken(god) {
+  lastGodSpoken = god;
+}
+
 // Scarab counter
 export let scarabCount = 0;
 export let scarabTimeout = null;

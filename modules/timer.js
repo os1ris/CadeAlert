@@ -8,7 +8,12 @@ import {
   timerEndTime,
   timerStartTime,
   currentState,
-  isHardMode
+  isHardMode,
+  setTimerActive,
+  setCurrentState,
+  setTimerStartTime,
+  setTimerEndTime,
+  setCountdownInterval
 } from './state.js';
 import { updateTimerDisplay, updateStatus } from './helpers.js';
 
@@ -19,19 +24,19 @@ import { updateTimerDisplay, updateStatus } from './helpers.js';
 export function startBarricadeTimer(duration = TIMER_DURATIONS.SPECIAL_PHASE) {
   if (timerActive) return;
 
-  timerActive = true;
-  currentState = 'counting';
-  timerStartTime = Date.now(); // Record when timer started
-  timerEndTime = timerStartTime + duration;
+  setTimerActive(true);
+  setCurrentState('counting');
+  setTimerStartTime(Date.now()); // Record when timer started
+  setTimerEndTime(timerStartTime + duration);
 
   const initialCount = Math.ceil(duration / 1000);
   updateTimerDisplay(initialCount, 'countdown-green');
   updateStatus(ALERT_MESSAGES.BARRICADE_INCOMING);
 
   // Start countdown interval
-  countdownInterval = setInterval(function () {
+  setCountdownInterval(setInterval(function () {
     updateCountdown();
-  }, 100);
+  }, 100));
 }
 
 /**
@@ -68,13 +73,13 @@ export function getCountdownColor(seconds) {
  */
 export function showBarricadeAlert() {
   clearInterval(countdownInterval);
-  timerActive = false;
-  currentState = 'alert';
+  setTimerActive(false);
+  setCurrentState('alert');
 
   updateStatus(ALERT_MESSAGES.ABILITY_READY);
 
   // Start live countdown for barricade alert
-  countdownInterval = setInterval(function () {
+  setCountdownInterval(setInterval(function () {
     let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
     if (remaining < 0) remaining = 0;
 
@@ -88,7 +93,7 @@ export function showBarricadeAlert() {
         resetTimer();
       }, TIMER_DURATIONS.RESET_DELAY);
     }
-  }, 100);
+  }, 100));
 }
 
 /**
@@ -105,8 +110,8 @@ export function cancelTimer() {
   }
 
   clearInterval(countdownInterval);
-  timerActive = false;
-  currentState = 'canceled';
+  setTimerActive(false);
+  setCurrentState('canceled');
 
   updateTimerDisplay(ALERT_MESSAGES.SCARABS_SKIPPED, 'canceled');
   updateStatus(ALERT_MESSAGES.TIMER_CANCELED);
@@ -121,8 +126,8 @@ export function cancelTimer() {
  * Reset timer to ready state
  */
 export function resetTimer() {
-  timerActive = false;
-  currentState = 'ready';
+  setTimerActive(false);
+  setCurrentState('ready');
   clearInterval(countdownInterval);
 
   updateTimerDisplay("", 'ready');

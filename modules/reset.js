@@ -2,7 +2,7 @@
 // Contains reset functions for new instances and state cleanup
 
 import { ALERT_MESSAGES } from './constants.js';
-import { resetState, countdownInterval, scarabTimeout, greenFlipInterval } from './state.js';
+import { resetState, countdownInterval, scarabTimeout, greenFlipInterval, setCountdownInterval, setScarabTimeout, setGreenFlipInterval } from './state.js';
 import { updateTimerDisplay, updateStatus } from './helpers.js';
 
 /**
@@ -14,11 +14,11 @@ export function resetForNewInstance() {
   // Clear all active timers and intervals
   if (countdownInterval) {
     clearInterval(countdownInterval);
-    countdownInterval = null;
+    setCountdownInterval(null);
   }
   if (scarabTimeout) {
     clearTimeout(scarabTimeout);
-    scarabTimeout = null;
+    setScarabTimeout(null);
   }
 
   // Reset all state variables using the helper function

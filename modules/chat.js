@@ -6,6 +6,7 @@ import {
   backwardsReadingEnabled,
   backwardsReadingDistance,
   oldLineTime,
+  updateOldLineTime,
   isHardMode,
   lastGodSpoken,
   greenFlipCount,
@@ -118,7 +119,7 @@ export function readChatbox() {
         // OCR Quality Validation - Check if message is newer than previous
         if (oldLineTime <= lineTime || lineTimeStr === null) {
           if (lineTimeStr !== null) {
-            oldLineTime = lineTime;
+            updateOldLineTime(lineTime);
           }
 
           // Log all detected chat text for debugging
