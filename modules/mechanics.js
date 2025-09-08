@@ -30,7 +30,7 @@ import { updateTimerDisplay, updateStatus, clearAllMechanicTimeouts, resetDispla
  * Increment scarab count and handle collection logic
  */
 export function incrementScarabCount() {
-  scarabCount++;
+  setScarabCount(scarabCount + 1);
   console.log('Scarab count:', scarabCount);
 
   // Clear existing timeout to reset the inactivity timer
