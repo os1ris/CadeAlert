@@ -76,7 +76,7 @@ export function showBarricadeAlert() {
   setTimerActive(false);
   setCurrentState('alert');
 
-  updateStatus(ALERT_MESSAGES.ABILITY_READY);
+  // updateStatus(ALERT_MESSAGES.ABILITY_READY);
 
   // Start live countdown for barricade alert
   setCountdownInterval(setInterval(function () {

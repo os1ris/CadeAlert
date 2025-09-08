@@ -78,7 +78,7 @@ export const ALERT_MESSAGES = {
   SCARABS_PREFIX: "Scarabs: ",
   SCARABS_SKIPPED: "Scarabs Skipped",
   ABILITY_READY: "Ability ready!",
-  BARRICADE_INCOMING: "Barricade incoming...",
+  BARRICADE_INCOMING: "Build for barricade...",
   TIMER_CANCELED: "Timer canceled",
   MONITORING_CHAT: "Monitoring chat...",
   LOOKING_FOR_CHATBOX: "Looking for chatbox...",
