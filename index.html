@@ -53,6 +53,22 @@
             justify-content: center;
         }
 
+        .details-message {
+            font-size: 12px;
+            text-align: center;
+            margin: 3px 5px;
+            height: 40px;
+            overflow: hidden;
+            word-wrap: break-word;
+            line-height: 1.2;
+            padding: 2px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
         .countdown-green { color: #00ff00; }
         .countdown-yellow { color: #ffff00; }
         .countdown-red { color: #ff0000; }
@@ -137,6 +153,12 @@
             color: #ffffff;
         }
 
+        .alert-details {
+            font-size: 12px;
+            color: #cccccc;
+            font-weight: bold;
+        }
+
         /* Responsive text scaling for different content lengths */
         .timer-display div:first-child {
             font-size: 14px;
@@ -206,6 +228,7 @@
     <div id="timerBox" class="timer-display">Initializing...</div>
     <div id="progressBar" class="progress-bar" style="display: none;"><div class="progress-fill"></div></div>
     <div id="statusBox" class="status-message">Waiting for mechanic...</div>
+    <div id="detailsBox" class="details-message" style="display: none;"></div>
     <!-- <div style="text-align: center; margin: 5px 0;">
         <button id="modeToggle" class="btn btn-sm btn-outline-primary" onclick="toggleMode()">Normal Mode</button>
     </div> -->

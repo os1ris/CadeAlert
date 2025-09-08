@@ -17,7 +17,7 @@ import {
   setTimerTotalDuration,
   setCountdownInterval
 } from './state.js';
-import { updateTimerDisplay, updateStatus, showProgressBar, updateProgressBar, hideProgressBar } from './helpers.js';
+import { updateTimerDisplay, updateStatus, showProgressBar, updateProgressBar, hideProgressBar, clearDetails } from './helpers.js';
 
 /**
  * Start the barricade timer with specified duration
@@ -181,5 +181,18 @@ export function resetTimer() {
   hideProgressBar();
 
   updateTimerDisplay("", 'ready');
-  updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+
+  // Don't reset status if currently showing a prayer alert
+  const statusBox = document.getElementById('statusBox');
+  const detailsBox = document.getElementById('detailsBox');
+  const hasPrayerAlert = (statusBox && statusBox.textContent && statusBox.textContent.includes('Pray')) ||
+                         (detailsBox && detailsBox.textContent && detailsBox.textContent.includes('Pray'));
+
+  if (hasPrayerAlert) {
+    // Let the prayer alert timeout handle resetting the status and details
+    console.log('Not resetting displays - prayer alert active');
+  } else {
+    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+    clearDetails();
+  }
 }

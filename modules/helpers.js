@@ -39,8 +39,22 @@ export function clearAllMechanicTimeouts() {
  */
 export function showTemporaryAlert(message, duration = TIMER_DURATIONS.ALERT_DURATION) {
   updateStatus(message);
+
+  // Also show prayer alerts in details display
+  if (message === ALERT_MESSAGES.PRAY_MELEE ||
+      message === ALERT_MESSAGES.PRAY_RANGED ||
+      message === ALERT_MESSAGES.PRAY_MAGIC) {
+    updateDetails(message);
+  }
+
   setTimeout(() => {
     updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+    // Clear details display when prayer alert expires
+    if (message === ALERT_MESSAGES.PRAY_MELEE ||
+        message === ALERT_MESSAGES.PRAY_RANGED ||
+        message === ALERT_MESSAGES.PRAY_MAGIC) {
+      clearDetails();
+    }
   }, duration);
 }
 
@@ -208,4 +222,28 @@ export function hideProgressBar() {
   if (progressBar) {
     progressBar.style.display = 'none';
   }
+}
+
+/**
+ * Update details message
+ * @param {string} message - Details message to display
+ */
+export function updateDetails(message) {
+  const detailsBox = document.getElementById('detailsBox');
+  if (detailsBox) {
+    if (message && message.trim() !== "") {
+      detailsBox.style.display = 'flex';
+      detailsBox.innerHTML = '<span class="alert-details">' + message + '</span>';
+    } else {
+      detailsBox.style.display = 'none';
+      detailsBox.innerHTML = '';
+    }
+  }
+}
+
+/**
+ * Clear details display
+ */
+export function clearDetails() {
+  updateDetails("");
 }
