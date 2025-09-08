@@ -167,3 +167,44 @@ export function updateTimerForStatus(statusMessage) {
     updateTimerDisplay(ALERT_MESSAGES.MECHANIC_ACTIVE, 'alert-active');
   }
 }
+
+/**
+ * Show and initialize progress bar
+ * @param {number} totalDuration - Total duration in milliseconds
+ */
+export function showProgressBar(totalDuration) {
+  const progressBar = document.getElementById('progressBar');
+  if (progressBar) {
+    progressBar.style.display = 'block';
+    updateProgressBar(100, 'green'); // Start at 100%
+  }
+}
+
+/**
+ * Update progress bar width and color
+ * @param {number} percentage - Percentage remaining (0-100)
+ * @param {string} color - Color class ('green', 'yellow', 'red')
+ */
+export function updateProgressBar(percentage, color) {
+  const progressBar = document.getElementById('progressBar');
+  if (progressBar) {
+    const fillElement = progressBar.querySelector('.progress-fill');
+    if (fillElement) {
+      fillElement.style.width = percentage + '%';
+      let bgColor = '#00ff00'; // green
+      if (color === 'yellow') bgColor = '#ffff00';
+      else if (color === 'red') bgColor = '#ff0000';
+      fillElement.style.backgroundColor = bgColor;
+    }
+  }
+}
+
+/**
+ * Hide progress bar
+ */
+export function hideProgressBar() {
+  const progressBar = document.getElementById('progressBar');
+  if (progressBar) {
+    progressBar.style.display = 'none';
+  }
+}

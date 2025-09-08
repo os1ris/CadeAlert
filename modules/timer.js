@@ -7,15 +7,17 @@ import {
   countdownInterval,
   timerEndTime,
   timerStartTime,
+  timerTotalDuration,
   currentState,
   isHardMode,
   setTimerActive,
   setCurrentState,
   setTimerStartTime,
   setTimerEndTime,
+  setTimerTotalDuration,
   setCountdownInterval
 } from './state.js';
-import { updateTimerDisplay, updateStatus } from './helpers.js';
+import { updateTimerDisplay, updateStatus, showProgressBar, updateProgressBar, hideProgressBar } from './helpers.js';
 
 /**
  * Start the barricade timer with specified duration
@@ -28,10 +30,14 @@ export function startBarricadeTimer(duration = TIMER_DURATIONS.SPECIAL_PHASE) {
   setCurrentState('counting');
   setTimerStartTime(Date.now()); // Record when timer started
   setTimerEndTime(timerStartTime + duration);
+  setTimerTotalDuration(duration); // Store total duration for progress bar
 
   const initialCount = Math.ceil(duration / 1000);
   updateTimerDisplay(initialCount, 'countdown-green');
   updateStatus(ALERT_MESSAGES.BARRICADE_INCOMING);
+
+  // Show and initialize progress bar
+  showProgressBar(duration);
 
   // Start countdown interval
   setCountdownInterval(setInterval(function () {
@@ -53,6 +59,8 @@ export function updateCountdown() {
     if (!timerActive) return;
 
     let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
+    let elapsed = Date.now() - timerStartTime;
+    let percentage = Math.max(0, Math.min(100, ((timerTotalDuration - elapsed) / timerTotalDuration) * 100));
 
     if (remaining <= 6) {
       // Timer reached 6 seconds - show barricade alert and keep it visible
@@ -61,6 +69,12 @@ export function updateCountdown() {
       // Update countdown display with appropriate color
       let colorClass = getCountdownColor(remaining);
       updateTimerDisplay(remaining, colorClass);
+
+      // Update progress bar
+      let progressColor = 'green';
+      if (remaining <= 10) progressColor = 'yellow';
+      if (remaining <= 5) progressColor = 'red';
+      updateProgressBar(percentage, progressColor);
     }
   } catch (error) {
     console.error('Error updating countdown:', error);
@@ -88,6 +102,9 @@ export function showBarricadeAlert() {
     clearInterval(countdownInterval);
     setTimerActive(false);
     setCurrentState('alert');
+
+    // Hide progress bar when alert starts
+    hideProgressBar();
 
     // updateStatus(ALERT_MESSAGES.ABILITY_READY);
 
@@ -136,6 +153,9 @@ export function cancelTimer() {
   setTimerActive(false);
   setCurrentState('canceled');
 
+  // Hide progress bar when timer is canceled
+  hideProgressBar();
+
   updateTimerDisplay(ALERT_MESSAGES.SCARABS_SKIPPED, 'canceled');
   updateStatus(ALERT_MESSAGES.TIMER_CANCELED);
 
@@ -152,6 +172,9 @@ export function resetTimer() {
   setTimerActive(false);
   setCurrentState('ready');
   clearInterval(countdownInterval);
+
+  // Hide progress bar when timer resets
+  hideProgressBar();
 
   updateTimerDisplay("", 'ready');
   updateStatus(ALERT_MESSAGES.MONITORING_CHAT);

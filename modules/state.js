@@ -8,6 +8,7 @@ export let timerActive = false;
 export let countdownInterval = null;
 export let timerEndTime = 0;
 export let timerStartTime = 0;
+export let timerTotalDuration = 0; // Total duration for progress bar calculation
 export let currentState = 'ready'; // 'ready', 'counting', 'alert', 'canceled'
 export let isHardMode = true; // Track difficulty mode - default to hard mode
 
@@ -56,6 +57,14 @@ export function setTimerStartTime(time) {
  */
 export function setTimerEndTime(time) {
   timerEndTime = time;
+}
+
+/**
+ * Update timer total duration
+ * @param {number} duration - The total duration in milliseconds
+ */
+export function setTimerTotalDuration(duration) {
+  timerTotalDuration = duration;
 }
 
 /**
@@ -147,6 +156,7 @@ export function resetState() {
   countdownInterval = null;
   timerEndTime = 0;
   timerStartTime = 0;
+  timerTotalDuration = 0;
   currentState = 'ready';
   scarabCount = 0;
   scarabTimeout = null;

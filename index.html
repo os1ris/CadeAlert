@@ -179,13 +179,30 @@
             margin-bottom: 1px;
         }
 
+        /* Progress bar styling */
+        .progress-bar {
+            width: 100%;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 5px 0;
+            border-radius: 1px;
+            overflow: hidden;
+            position: relative;
+        }
 
+        .progress-fill {
+            height: 100%;
+            background-color: #00ff00;
+            width: 100%;
+            transition: width 0.1s linear, background-color 0.1s linear;
+        }
 
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div id="timerBox" class="timer-display">Initializing...</div>
+    <div id="progressBar" class="progress-bar" style="display: none;"><div class="progress-fill"></div></div>
     <div id="statusBox" class="status-message">Monitoring chat...</div>
     <!-- <div style="text-align: center; margin: 5px 0;">
         <button id="modeToggle" class="btn btn-sm btn-outline-primary" onclick="toggleMode()">Normal Mode</button>
