@@ -182,6 +182,71 @@ let killDogsTimeout = null;
 let subjugationTimeout = null;
 let nameCallingTimeout = null;
 
+// Helper Functions for Code Optimization
+
+/**
+ * Clear all mechanic-related timeouts and intervals
+ * Consolidates redundant timeout clearing logic used in multiple functions
+ */
+function clearAllMechanicTimeouts() {
+  console.log('🧹 Clearing all mechanic timeouts');
+
+  if (greenFlipInterval) {
+    clearTimeout(greenFlipInterval);
+    greenFlipInterval = null;
+  }
+  if (killDogsTimeout) {
+    clearTimeout(killDogsTimeout);
+    killDogsTimeout = null;
+  }
+  if (subjugationTimeout) {
+    clearTimeout(subjugationTimeout);
+    subjugationTimeout = null;
+  }
+  if (scarabTimeout) {
+    clearTimeout(scarabTimeout);
+    scarabTimeout = null;
+  }
+  if (nameCallingTimeout) {
+    clearTimeout(nameCallingTimeout);
+    nameCallingTimeout = null;
+  }
+}
+
+/**
+ * Show a temporary alert with automatic reset to monitoring status
+ * Consolidates the common pattern: updateStatus -> setTimeout -> reset
+ */
+function showTemporaryAlert(message, duration = TIMER_DURATIONS.ALERT_DURATION) {
+  updateStatus(message);
+  setTimeout(() => {
+    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+  }, duration);
+}
+
+/**
+ * Reset both timer and status displays to ready state
+ * Consolidates redundant display reset logic
+ */
+function resetDisplays() {
+  updateTimerDisplay("", 'ready');
+  updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+}
+
+/**
+ * Process OCR timestamp validation
+ * Extracts common OCR validation logic used in message processing
+ */
+function validateMessageTimestamp(lineTime, oldLineTime) {
+  // OCR Quality Validation - Check if message is newer than previous
+  if (oldLineTime <= lineTime) {
+    return true; // Process this message
+  } else {
+    console.log("Skipping old message");
+    return false; // Skip this message
+  }
+}
+
 // Track which god last spoke for name-calling mechanic
 let lastGodSpoken = null;
 
@@ -326,24 +391,15 @@ function readChatbox() {
       // Check for prayer switching alerts
       else if (message.includes(MESSAGE_TRIGGERS.ALL_STRENGTH_WITHERS)) {
         console.log('🛡️ PRAYER ALERT: Melee attack detected');
-        updateStatus(ALERT_MESSAGES.PRAY_MELEE);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.ALERT_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.PRAY_MELEE);
       }
       else if (message.includes(MESSAGE_TRIGGERS.I_WILL_NOT_SUFFER)) {
         console.log('🛡️ PRAYER ALERT: Ranged attack detected');
-        updateStatus(ALERT_MESSAGES.PRAY_RANGED);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.ALERT_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.PRAY_RANGED);
       }
       else if (message.includes(MESSAGE_TRIGGERS.YOUR_SOUL_IS_WEAK)) {
         console.log('🛡️ PRAYER ALERT: Magic attack detected');
-        updateStatus(ALERT_MESSAGES.PRAY_MAGIC);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.ALERT_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.PRAY_MAGIC);
       }
 
       // Check for tri-colour attack warnings
@@ -352,19 +408,13 @@ function readChatbox() {
                 message.includes(MESSAGE_TRIGGERS.WEAK))) {
         console.log('⚠️ TRI-ATTACK WARNING: Tri-colour attack incoming');
         console.log('📝 Message that triggered:', message);
-        updateStatus(ALERT_MESSAGES.TRI_COLOUR_ATTACK);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.TRI_ATTACK_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.TRI_COLOUR_ATTACK, TIMER_DURATIONS.TRI_ATTACK_DURATION);
       }
 
       // Check for Tumeken charge message
       else if (message.includes(MESSAGE_TRIGGERS.UNITE_POWER)) {
         console.log('⚡ TUMEKEN CHARGE: Time to charge');
-        updateStatus(ALERT_MESSAGES.TUMEKEN_CHARGE);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.TUMEKEN_CHARGE_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.TUMEKEN_CHARGE, TIMER_DURATIONS.TUMEKEN_CHARGE_DURATION);
       }
 
       // Check for scarab collection
@@ -376,10 +426,7 @@ function readChatbox() {
       // Check for Amascut attacking Tumeken
       else if (message.includes(MESSAGE_TRIGGERS.GET_OUT_OF_MY_WAY)) {
         console.log('⚔️ AMASCUT ATTACKING TUMEKEN');
-        updateStatus(ALERT_MESSAGES.AMASCUT_ATTACKING);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.AMASCUT_ATTACK_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.AMASCUT_ATTACKING, TIMER_DURATIONS.AMASCUT_ATTACK_DURATION);
       }
 
       // Check for name-calling mechanic start
@@ -422,49 +469,34 @@ function readChatbox() {
       else if (message.includes(MESSAGE_TRIGGERS.I_AM_SORRY_APMEKEN)) {
         console.log('📍 NW VOKES CALLED');
         lastGodSpoken = 'apmeken';
-        updateStatus(ALERT_MESSAGES.NW_VOKES);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.VOKES_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.NW_VOKES, TIMER_DURATIONS.VOKES_DURATION);
       }
 
       // Check for SW voke call
       else if (message.includes(MESSAGE_TRIGGERS.FORGIVE_ME_HET)) {
         console.log('📍 SW VOKES CALLED');
         lastGodSpoken = 'het';
-        updateStatus(ALERT_MESSAGES.SW_VOKES);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.VOKES_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.SW_VOKES, TIMER_DURATIONS.VOKES_DURATION);
       }
 
       // Check for NE voke call - SPECIFIC DETECTION to avoid false positives
       else if (message === MESSAGE_TRIGGERS.SCABARAS || (message.includes(MESSAGE_TRIGGERS.SCABARAS) && message.length < 20)) {
         console.log('📍 NE VOKES CALLED - Scabaras called');
         lastGodSpoken = 'scabaras';
-        updateStatus(ALERT_MESSAGES.NE_VOKES);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.VOKES_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.NE_VOKES, TIMER_DURATIONS.VOKES_DURATION);
       }
 
       // Check for SE voke call
       else if (message.includes(MESSAGE_TRIGGERS.CRONDIS)) {
         console.log('📍 SE VOKES CALLED');
         lastGodSpoken = 'crondis';
-        updateStatus(ALERT_MESSAGES.SE_VOKES);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.VOKES_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.SE_VOKES, TIMER_DURATIONS.VOKES_DURATION);
       }
 
       // Check for "Bend the Knee" attack
       else if (message.includes(MESSAGE_TRIGGERS.BEND_THE_KNEE)) {
         console.log('⚔️ BEND THE KNEE ATTACK: Incoming attack detected');
-        updateStatus(ALERT_MESSAGES.BEND_KNEE_ATTACK);
-        setTimeout(() => {
-          updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-        }, TIMER_DURATIONS.BEND_KNEE_DURATION);
+        showTemporaryAlert(ALERT_MESSAGES.BEND_KNEE_ATTACK, TIMER_DURATIONS.BEND_KNEE_DURATION);
       }
 
       // Check for Amascut's "Your light will be snuffed out" message
@@ -841,18 +873,8 @@ function startGreenFlip() {
 function showKillDogsAlert() {
   console.log('🐕 KILL DOGS: Starting alert');
 
-  // Clear any existing intervals and timeouts
-  if (greenFlipInterval) {
-    clearInterval(greenFlipInterval);
-    greenFlipInterval = null;
-  }
-  if (killDogsTimeout) {
-    clearTimeout(killDogsTimeout);
-  }
-  if (scarabTimeout) {
-    clearTimeout(scarabTimeout);
-    scarabTimeout = null;
-  }
+  // Clear all mechanic timeouts using helper function
+  clearAllMechanicTimeouts();
 
   // Clear all displays and show KILL DOGS NOW
   updateTimerDisplay(ALERT_MESSAGES.KILL_DOGS, 'alert-active');
@@ -860,8 +882,7 @@ function showKillDogsAlert() {
 
   // Reset after 9 seconds
   killDogsTimeout = setTimeout(() => {
-    updateTimerDisplay("", 'ready');
-    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+    resetDisplays();
     console.log('🐕 KILL DOGS: Alert ended');
   }, TIMER_DURATIONS.KILL_DOGS_DURATION);
 }
@@ -870,21 +891,8 @@ function showKillDogsAlert() {
 function showSubjugationAlert() {
   console.log('👑 SUBJUGATION: Starting stand behind alert');
 
-  // Clear any existing intervals and timeouts
-  if (greenFlipInterval) {
-    clearInterval(greenFlipInterval);
-    greenFlipInterval = null;
-  }
-  if (killDogsTimeout) {
-    clearTimeout(killDogsTimeout);
-  }
-  if (subjugationTimeout) {
-    clearTimeout(subjugationTimeout);
-  }
-  if (scarabTimeout) {
-    clearTimeout(scarabTimeout);
-    scarabTimeout = null;
-  }
+  // Clear all mechanic timeouts using helper function
+  clearAllMechanicTimeouts();
 
   // Clear all displays and show STAND BEHIND AMASCUT
   updateTimerDisplay("STAND BEHIND<br>AMASCUT", 'alert-active');
@@ -892,8 +900,7 @@ function showSubjugationAlert() {
 
   // Reset after 8 seconds
   subjugationTimeout = setTimeout(() => {
-    updateTimerDisplay("", 'ready');
-    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+    resetDisplays();
     console.log('👑 SUBJUGATION: Alert ended');
   }, TIMER_DURATIONS.SUBJUGATION_DURATION);
 }
