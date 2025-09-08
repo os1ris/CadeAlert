@@ -179,7 +179,7 @@ export function showProgressBar(totalDuration) {
 }
 
 /**
- * Update progress bar width and color
+ * Update progress bar scale and color
  * @param {number} percentage - Percentage remaining (0-100)
  * @param {string} color - Color class ('green', 'yellow', 'red')
  */
@@ -188,7 +188,10 @@ export function updateProgressBar(percentage, color) {
   if (progressBar) {
     const fillElement = progressBar.querySelector('.progress-fill');
     if (fillElement) {
-      fillElement.style.width = percentage + '%';
+      // Convert percentage to scale factor (0-1)
+      const scaleFactor = percentage / 100;
+      fillElement.style.transform = `scaleX(${scaleFactor})`;
+
       let bgColor = '#00ff00'; // green
       if (color === 'yellow') bgColor = '#ffff00';
       else if (color === 'red') bgColor = '#ff0000';

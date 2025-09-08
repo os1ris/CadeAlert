@@ -194,7 +194,9 @@
             height: 100%;
             background-color: #00ff00;
             width: 100%;
-            transition: width 0.1s linear, background-color 0.1s linear;
+            transform: scaleX(1);
+            transform-origin: center;
+            transition: transform 0.1s linear, background-color 0.1s linear;
         }
 
         .hidden { display: none; }

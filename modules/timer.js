@@ -103,8 +103,7 @@ export function showBarricadeAlert() {
     setTimerActive(false);
     setCurrentState('alert');
 
-    // Hide progress bar when alert starts
-    hideProgressBar();
+    // Keep progress bar visible during alert phase
 
     // updateStatus(ALERT_MESSAGES.ABILITY_READY);
 
@@ -115,6 +114,11 @@ export function showBarricadeAlert() {
         if (remaining < 0) remaining = 0;
 
         updateTimerDisplay("USE BARRICADE!<br>(" + remaining + "s left)", 'alert-active');
+
+        // Update progress bar during alert phase
+        let elapsed = Date.now() - timerStartTime;
+        let percentage = Math.max(0, Math.min(100, ((timerTotalDuration - elapsed) / timerTotalDuration) * 100));
+        updateProgressBar(percentage, 'red'); // Keep red color during alert
 
         // Stop countdown when time runs out
         if (remaining <= 0) {
