@@ -52,7 +52,7 @@ export const MESSAGE_TRIGGERS = {
   BEND_THE_KNEE: "bend the knee",
   LIGHT_SNUFFED: "your light will be snuffed out, once and for all",
   NEW_DAWN: "a new dawn",
-  NOT_BE_SUBJUGATED: "i will not be subjugated"
+  NOT_BE_SUBJUGATED: "subjugated"
 };
 
 export const ALERT_MESSAGES = {
