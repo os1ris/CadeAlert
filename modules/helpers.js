@@ -141,8 +141,13 @@ export function updateStatus(message) {
       // Amascut attacking Tumeken with subtext
       statusBox.innerHTML = '<div class="alert-info-with-subtext">' + message + '</div><div class="alert-info-subtext">Kill dogs & watch for your name!</div>';
     } else if (message.includes(ALERT_MESSAGES.SCARABS_PREFIX)) {
-      // Scarab progress counter
-      statusBox.innerHTML = '<span class="alert-info">' + message + '</span>';
+      // Scarab progress counter with target hit counter
+      const parts = message.split('<br>');
+      let html = '<span class="alert-info">' + parts[0] + '</span>';
+      if (parts[1]) {
+        html += '<br><span class="alert-target-hit">' + parts[1] + '</span>';
+      }
+      statusBox.innerHTML = html;
     } else if (message === ALERT_MESSAGES.ALL_SCARABS) {
       // All scarabs collected - larger and more prominent
       statusBox.innerHTML = '<span class="alert-info-large">' + message + '</span>';

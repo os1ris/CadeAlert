@@ -124,6 +124,14 @@ export function setScarabCount(count) {
 }
 
 /**
+ * Update target hit count
+ * @param {number} count - The new target hit count
+ */
+export function setTargetHitCount(count) {
+  targetHitCount = count;
+}
+
+/**
  * Update last god spoken
  * @param {string} god - The god that was spoken to
  */
@@ -142,6 +150,9 @@ export function setIsGreenOne(value) {
 // Scarab counter
 export let scarabCount = 0;
 export let scarabTimeout = null;
+
+// Target hit counter
+export let targetHitCount = 0;
 
 // Mechanic display intervals
 export let greenFlipInterval = null;
@@ -167,6 +178,7 @@ export function resetState() {
   timerTotalDuration = 0;
   currentState = 'ready';
   scarabCount = 0;
+  targetHitCount = 0;
   scarabTimeout = null;
   greenFlipInterval = null;
   killDogsTimeout = null;
@@ -186,6 +198,7 @@ export function getStateInfo() {
     currentState,
     isHardMode,
     scarabCount,
+    targetHitCount,
     lastGodSpoken,
     isGreenOne,
     greenFlipActive,

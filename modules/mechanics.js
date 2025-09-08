@@ -4,6 +4,7 @@
 import { TIMER_DURATIONS, ALERT_MESSAGES } from './constants.js';
 import {
   scarabCount,
+  targetHitCount,
   scarabTimeout,
   greenFlipInterval,
   killDogsTimeout,
@@ -20,6 +21,7 @@ import {
   setSubjugationTimeout,
   setNameCallingTimeout,
   setScarabCount,
+  setTargetHitCount,
   setLastGodSpoken,
   setTimerActive,
   setCountdownInterval
@@ -49,14 +51,26 @@ export function incrementScarabCount() {
     }, TIMER_DURATIONS.SCARAB_ALERT_DURATION));
   } else {
     // Show current count - force immediate update
-    updateStatus(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4`);
+    updateStatus(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4<br>${ALERT_MESSAGES.TARGETS_PREFIX}${targetHitCount}`);
     // Set timeout to clear display after 12 seconds of inactivity
     setScarabTimeout(setTimeout(() => {
       setScarabCount(0); // Reset counter
+      setTargetHitCount(0); // Reset target hit counter
       updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
       setScarabTimeout(null);
     }, TIMER_DURATIONS.SCARAB_TIMEOUT));
   }
+}
+
+/**
+ * Increment target hit count and handle display logic
+ */
+export function incrementTargetHitCount() {
+  setTargetHitCount(targetHitCount + 1);
+  console.log('Target hit count:', targetHitCount);
+
+  // Show current count - force immediate update
+  updateStatus(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4<br>${ALERT_MESSAGES.TARGETS_PREFIX}${targetHitCount}`);
 }
 
 /**
