@@ -1,5 +1,5 @@
 {
-    "appName": "BarricadeTimer",
+    "appName": "CadeAlert",
     "description": "Monitors chat for boss phrases and provides barricade ability timing.",
     "appUrl": "./index.html",
     "configUrl": "./appconfig.json",
