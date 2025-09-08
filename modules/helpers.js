@@ -1,0 +1,169 @@
+// Barricade Timer - Helpers Module
+// Contains utility functions for code optimization and common operations
+
+import { TIMER_DURATIONS, ALERT_MESSAGES } from './constants.js';
+import { resetState, scarabTimeout, greenFlipInterval, killDogsTimeout, subjugationTimeout, nameCallingTimeout, timerActive } from './state.js';
+
+/**
+ * Clear all mechanic-related timeouts and intervals
+ * Consolidates redundant timeout clearing logic used in multiple functions
+ */
+export function clearAllMechanicTimeouts() {
+  console.log('🧹 Clearing all mechanic timeouts');
+
+  if (greenFlipInterval) {
+    clearTimeout(greenFlipInterval);
+    greenFlipInterval = null;
+  }
+  if (killDogsTimeout) {
+    clearTimeout(killDogsTimeout);
+    killDogsTimeout = null;
+  }
+  if (subjugationTimeout) {
+    clearTimeout(subjugationTimeout);
+    subjugationTimeout = null;
+  }
+  if (scarabTimeout) {
+    clearTimeout(scarabTimeout);
+    scarabTimeout = null;
+  }
+  if (nameCallingTimeout) {
+    clearTimeout(nameCallingTimeout);
+    nameCallingTimeout = null;
+  }
+}
+
+/**
+ * Show a temporary alert with automatic reset to monitoring status
+ * Consolidates the common pattern: updateStatus -> setTimeout -> reset
+ */
+export function showTemporaryAlert(message, duration = TIMER_DURATIONS.ALERT_DURATION) {
+  updateStatus(message);
+  setTimeout(() => {
+    updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+  }, duration);
+}
+
+/**
+ * Reset both timer and status displays to ready state
+ * Consolidates redundant display reset logic
+ */
+export function resetDisplays() {
+  updateTimerDisplay("", 'ready');
+  updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
+}
+
+/**
+ * Process OCR timestamp validation
+ * Extracts common OCR validation logic used in message processing
+ */
+export function validateMessageTimestamp(lineTime, oldLineTime) {
+  // OCR Quality Validation - Check if message is newer than previous
+  if (oldLineTime <= lineTime) {
+    return true; // Process this message
+  } else {
+    console.log("Skipping old message");
+    return false; // Skip this message
+  }
+}
+
+/**
+ * Update timer display
+ * @param {string} text - Text to display
+ * @param {string} className - CSS class for styling
+ */
+export function updateTimerDisplay(text, className) {
+  const timerBox = document.getElementById('timerBox');
+  if (timerBox) {
+    // Clear existing content and classes
+    timerBox.innerHTML = '';
+    timerBox.className = 'timer-display';
+
+    if (!isNaN(text) && text !== "") {
+      // Simple countdown number - add header
+      timerBox.innerHTML = '<div>Detonation in:</div><div>' + text + '</div>';
+    } else if (text && text.trim() !== "") {
+      // Check if text contains HTML
+      if (text.includes('<br>') || text.includes('<') || text.includes('>')) {
+        timerBox.innerHTML = text;
+      } else {
+        // Plain text - wrap in div for better control
+        timerBox.innerHTML = '<div>' + text + '</div>';
+      }
+    }
+
+    // Apply the color class if provided
+    if (className && className.trim() !== "") {
+      timerBox.classList.add(className);
+    }
+  }
+}
+
+/**
+ * Update status message
+ * @param {string} message - Status message to display
+ */
+export function updateStatus(message) {
+  const statusBox = document.getElementById('statusBox');
+  if (statusBox) {
+    // Clear any existing classes
+    statusBox.className = 'status-message';
+
+    if (message === ALERT_MESSAGES.TRI_COLOUR_ATTACK) {
+      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.BEND_KNEE_ATTACK) {
+      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.PRAY_MAGIC) {
+      statusBox.innerHTML = '<span class="alert-prayer-magic">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.PRAY_RANGED) {
+      statusBox.innerHTML = '<span class="alert-prayer-ranged">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.PRAY_MELEE) {
+      statusBox.innerHTML = '<span class="alert-prayer-melee">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.NAME_CALLING || message === ALERT_MESSAGES.NAME_CALLING_CRONDIS || message === ALERT_MESSAGES.NAME_CALLING_SCABARAS) {
+      statusBox.innerHTML = '<span class="alert-name-calling">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.NW_VOKES || message === ALERT_MESSAGES.SW_VOKES || message === ALERT_MESSAGES.NE_VOKES || message === ALERT_MESSAGES.SE_VOKES) {
+      statusBox.innerHTML = '<span class="alert-directional">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.AMASCUT_ATTACKING) {
+      // Amascut attacking Tumeken with subtext
+      statusBox.innerHTML = '<div class="alert-info-with-subtext">' + message + '</div><div class="alert-info-subtext">Kill dogs & watch for your name!</div>';
+    } else if (message.includes(ALERT_MESSAGES.SCARABS_PREFIX)) {
+      // Scarab progress counter
+      statusBox.innerHTML = '<span class="alert-info">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.ALL_SCARABS) {
+      // All scarabs collected - larger and more prominent
+      statusBox.innerHTML = '<span class="alert-info-large">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.TUMEKEN_CHARGE) {
+      statusBox.innerHTML = '<span class="alert-info">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.KILL_DOGS) {
+      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.STAND_BEHIND) {
+      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
+    } else if (message === ALERT_MESSAGES.GREEN_1 || message === ALERT_MESSAGES.GREEN_2) {
+      statusBox.innerHTML = '<span class="alert-info">' + message + '</span>';
+    } else {
+      // Default status messages
+      statusBox.innerHTML = '<span class="alert-status">' + message + '</span>';
+    }
+
+    // Update timer display to match status (unless timer is active)
+    updateTimerForStatus(message);
+  }
+}
+
+/**
+ * Update timer display based on status
+ * @param {string} statusMessage - Current status message
+ */
+export function updateTimerForStatus(statusMessage) {
+  // Don't override active countdown
+  if (timerActive) return;
+
+  if (statusMessage === ALERT_MESSAGES.LOOKING_FOR_CHATBOX) {
+    updateTimerDisplay(ALERT_MESSAGES.SEARCHING, '');
+  } else if (statusMessage === ALERT_MESSAGES.READY_MONITORING || statusMessage === ALERT_MESSAGES.MONITORING_CHAT) {
+    // Don't show anything when ready to monitor
+    updateTimerDisplay("", '');
+  } else if (statusMessage === ALERT_MESSAGES.MECHANIC_ACTIVE) {
+    updateTimerDisplay(ALERT_MESSAGES.MECHANIC_ACTIVE, 'alert-active');
+  }
+}
