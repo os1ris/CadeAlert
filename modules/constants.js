@@ -71,7 +71,7 @@ export const ALERT_MESSAGES = {
   GREEN_1: "Green 1 Active!",
   GREEN_2: "Green 2 Active!",
   KILL_DOGS: "KILL DOGS NOW!",
-  STAND_BEHIND: "STAND BEHIND AMASCUT, KILL MINIONS!",
+  STAND_BEHIND: "Prepare for minons!",
   ALL_SCARABS: "All scarabs collected!",
   SCARABS_PREFIX: "Scarabs: ",
   SCARABS_SKIPPED: "Scarabs Skipped",

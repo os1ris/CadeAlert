@@ -126,7 +126,7 @@ export function showSubjugationAlert() {
   clearAllMechanicTimeouts();
 
   // Clear all displays and show STAND BEHIND AMASCUT
-  updateTimerDisplay("STAND BEHIND<br>AMASCUT", 'alert-active');
+  updateTimerDisplay("Stand Behind<br>Amascut", 'alert-active');
   updateStatus(ALERT_MESSAGES.STAND_BEHIND);
 
   // Reset after 8 seconds
