@@ -70,15 +70,13 @@ export function startGreenFlip() {
     clearTimeout(greenFlipInterval);
   }
 
-  // Show Green 1 initially
-  updateTimerDisplay("GREEN 1", 'alert-active');
+  // Show Green 1 in status area only (don't compete with timer box)
   updateStatus(ALERT_MESSAGES.GREEN_1);
 
-  // Clear display after 3 seconds but preserve state for toggling
+  // Clear status after 3 seconds but preserve state for toggling
   setGreenFlipInterval(setTimeout(() => {
-    updateTimerDisplay("", 'ready');
     updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
-    console.log('🟢 GREEN FLIP: Display cleared, state preserved for toggling');
+    console.log('🟢 GREEN FLIP: Status cleared, state preserved for toggling');
   }, TIMER_DURATIONS.GREEN_FLIP_DURATION));
 }
 
@@ -91,7 +89,10 @@ export function toggleGreenFlip() {
   greenFlipCount++;
   console.log(`🟢 LIGHT SNUFFED: Green flip count ${greenFlipCount}`);
 
-  updateTimerDisplay("GREEN 2", 'alert-active');
+  // Only update timer display if no barricade timer is active
+  if (!timerActive) {
+    updateTimerDisplay("GREEN 2", 'alert-active');
+  }
   updateStatus(ALERT_MESSAGES.GREEN_2);
 }
 

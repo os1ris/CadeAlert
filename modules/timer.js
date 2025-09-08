@@ -35,7 +35,13 @@ export function startBarricadeTimer(duration = TIMER_DURATIONS.SPECIAL_PHASE) {
 
   // Start countdown interval
   setCountdownInterval(setInterval(function () {
-    updateCountdown();
+    try {
+      updateCountdown();
+    } catch (error) {
+      console.error('Error in countdown interval:', error);
+      clearInterval(countdownInterval);
+      resetTimer();
+    }
   }, 100));
 }
 
@@ -43,17 +49,23 @@ export function startBarricadeTimer(duration = TIMER_DURATIONS.SPECIAL_PHASE) {
  * Update the countdown display
  */
 export function updateCountdown() {
-  if (!timerActive) return;
+  try {
+    if (!timerActive) return;
 
-  let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
+    let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
 
-  if (remaining <= 6) {
-    // Timer reached 6 seconds - show barricade alert and keep it visible
-    showBarricadeAlert();
-  } else {
-    // Update countdown display with appropriate color
-    let colorClass = getCountdownColor(remaining);
-    updateTimerDisplay(remaining, colorClass);
+    if (remaining <= 6) {
+      // Timer reached 6 seconds - show barricade alert and keep it visible
+      showBarricadeAlert();
+    } else {
+      // Update countdown display with appropriate color
+      let colorClass = getCountdownColor(remaining);
+      updateTimerDisplay(remaining, colorClass);
+    }
+  } catch (error) {
+    console.error('Error updating countdown:', error);
+    clearInterval(countdownInterval);
+    resetTimer();
   }
 }
 
@@ -72,28 +84,39 @@ export function getCountdownColor(seconds) {
  * Show barricade ability alert
  */
 export function showBarricadeAlert() {
-  clearInterval(countdownInterval);
-  setTimerActive(false);
-  setCurrentState('alert');
+  try {
+    clearInterval(countdownInterval);
+    setTimerActive(false);
+    setCurrentState('alert');
 
-  // updateStatus(ALERT_MESSAGES.ABILITY_READY);
+    // updateStatus(ALERT_MESSAGES.ABILITY_READY);
 
-  // Start live countdown for barricade alert
-  setCountdownInterval(setInterval(function () {
-    let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
-    if (remaining < 0) remaining = 0;
+    // Start live countdown for barricade alert
+    setCountdownInterval(setInterval(function () {
+      try {
+        let remaining = Math.ceil((timerEndTime - Date.now()) / 1000);
+        if (remaining < 0) remaining = 0;
 
-    updateTimerDisplay("USE BARRICADE!<br>(" + remaining + "s left)", 'alert-active');
+        updateTimerDisplay("USE BARRICADE!<br>(" + remaining + "s left)", 'alert-active');
 
-    // Stop countdown when time runs out
-    if (remaining <= 0) {
-      clearInterval(countdownInterval);
-      // Keep the alert visible for a bit longer
-      setTimeout(function () {
+        // Stop countdown when time runs out
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          // Keep the alert visible for a bit longer
+          setTimeout(function () {
+            resetTimer();
+          }, TIMER_DURATIONS.RESET_DELAY);
+        }
+      } catch (error) {
+        console.error('Error in barricade countdown interval:', error);
+        clearInterval(countdownInterval);
         resetTimer();
-      }, TIMER_DURATIONS.RESET_DELAY);
-    }
-  }, 100));
+      }
+    }, 100));
+  } catch (error) {
+    console.error('Error starting barricade alert:', error);
+    resetTimer();
+  }
 }
 
 /**

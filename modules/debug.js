@@ -159,3 +159,33 @@ window.setBackwardsReadingDistance = setBackwardsReadingDistance;
 window.getBackwardsReadingSettings = getBackwardsReadingSettings;
 window.testLayoutStability = testLayoutStability;
 window.debugTriAttack = debugTriAttack;
+
+/**
+ * Debug function to test simultaneous barricade + green flip triggers
+ */
+export function debugSimultaneousTriggers() {
+  console.log('🧪 DEBUG: Testing simultaneous barricade + green flip triggers');
+
+  // Import required functions
+  import('./timer.js').then(timer => {
+    import('./mechanics.js').then(mechanics => {
+      // Start barricade timer (14s)
+      console.log('🎯 Starting barricade timer...');
+      timer.startBarricadeTimer(14000);
+
+      // After 500ms, trigger green flip (simulating real scenario)
+      setTimeout(() => {
+        console.log('🟢 Triggering green flip...');
+        mechanics.startGreenFlip();
+      }, 500);
+
+      console.log('✅ Simultaneous trigger test initiated');
+      console.log('   - Barricade timer should show countdown in timerBox');
+      console.log('   - Green flip should show "Green 1 Active!" in statusBox');
+      console.log('   - No "unknown error" should appear in console');
+    });
+  });
+}
+
+// Make the new debug function available globally
+window.debugSimultaneousTriggers = debugSimultaneousTriggers;
