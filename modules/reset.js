@@ -2,7 +2,7 @@
 // Contains reset functions for new instances and state cleanup
 
 import { ALERT_MESSAGES } from './constants.js';
-import { resetState, countdownInterval, scarabTimeout, greenFlipInterval, setCountdownInterval, setScarabTimeout, setGreenFlipInterval } from './state.js';
+import { resetState, countdownInterval, scarabTimeout, greenFlipInterval, setCountdownInterval, setScarabTimeout, setGreenFlipInterval, setTargetHitCount } from './state.js';
 import { updateTimerDisplay, updateStatus } from './helpers.js';
 
 /**

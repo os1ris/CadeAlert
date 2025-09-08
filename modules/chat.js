@@ -16,7 +16,7 @@ import {
 } from './state.js';
 import { validateMessageTimestamp, showTemporaryAlert, updateTimerDisplay, updateStatus } from './helpers.js';
 import { startBarricadeTimer, cancelTimer } from './timer.js';
-import { handleNameCallingMechanic, updateLastGodSpoken, toggleGreenFlip, showKillDogsAlert, showSubjugationAlert, incrementScarabCount, startGreenFlip } from './mechanics.js';
+import { handleNameCallingMechanic, updateLastGodSpoken, toggleGreenFlip, showKillDogsAlert, showSubjugationAlert, incrementScarabCount, incrementTargetHitCount, startGreenFlip } from './mechanics.js';
 import { handleError } from './error.js';
 import { resetForNewInstance } from './reset.js';
 
@@ -211,6 +211,13 @@ function processMessageTriggers(message) {
   if (message.includes(MESSAGE_TRIGGERS.SCARAB_COLLECTED)) {
     console.log('🪳 SCARAB COLLECTED');
     incrementScarabCount();
+    return;
+  }
+
+  // Check for target hit
+  if (message.includes(MESSAGE_TRIGGERS.TARGET_HIT)) {
+    console.log('🎯 TARGET HIT');
+    incrementTargetHitCount();
     return;
   }
 
