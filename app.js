@@ -349,8 +349,9 @@ function readChatbox() {
       // Check for tri-colour attack warnings
       else if ((message.includes(MESSAGE_TRIGGERS.GROVEL) ||
                 message.includes(MESSAGE_TRIGGERS.PATHETIC) ||
-                message.includes(MESSAGE_TRIGGERS.WEAK)) && !message.includes(MESSAGE_TRIGGERS.TEAR_THEM_APART)) {
+                message.includes(MESSAGE_TRIGGERS.WEAK))) {
         console.log('⚠️ TRI-ATTACK WARNING: Tri-colour attack incoming');
+        console.log('📝 Message that triggered:', message);
         updateStatus(ALERT_MESSAGES.TRI_COLOUR_ATTACK);
         setTimeout(() => {
           updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
@@ -668,8 +669,6 @@ function updateTimerForStatus(statusMessage) {
   } else if (statusMessage === ALERT_MESSAGES.READY_MONITORING || statusMessage === ALERT_MESSAGES.MONITORING_CHAT) {
     // Don't show anything when ready to monitor
     updateTimerDisplay("", '');
-  } else if (statusMessage.includes(ALERT_MESSAGES.BARRICADE_INCOMING)) {
-    // Timer will be updated by startBarricadeTimer
   } else if (statusMessage === ALERT_MESSAGES.MECHANIC_ACTIVE) {
     updateTimerDisplay(ALERT_MESSAGES.MECHANIC_ACTIVE, 'alert-active');
   }
@@ -900,3 +899,36 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeToggleButton();
 });
 */
+
+// Debug function for testing tri-attack detection
+function debugTriAttack() {
+  console.log('🧪 DEBUG: Testing tri-attack detection');
+  const testMessages = [
+    "grovel",
+    "pathetic",
+    "weak",
+    "amascut, the devourer: grovel",
+    "amascut, the devourer: pathetic",
+    "amascut, the devourer: weak",
+    "tear them apart",
+    "amascut, the devourer: tear them apart",
+    "grovel and tear them apart"
+  ];
+
+  testMessages.forEach(msg => {
+    console.log(`Testing: "${msg}"`);
+    const lowerMsg = msg.toLowerCase().trim();
+
+    if ((lowerMsg.includes(MESSAGE_TRIGGERS.GROVEL) ||
+         lowerMsg.includes(MESSAGE_TRIGGERS.PATHETIC) ||
+         lowerMsg.includes(MESSAGE_TRIGGERS.WEAK)) &&
+        !lowerMsg.includes(MESSAGE_TRIGGERS.TEAR_THEM_APART)) {
+      console.log(`✅ Would trigger tri-attack alert for: "${msg}"`);
+    } else {
+      console.log(`❌ Would NOT trigger tri-attack alert for: "${msg}"`);
+    }
+  });
+}
+
+// Make debug function available globally
+window.debugTriAttack = debugTriAttack;
