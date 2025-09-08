@@ -42,8 +42,7 @@ export function initializeChatReader() {
       }
     } else {
       console.log("Chatbox found!");
-      const modeText = isHardMode ? "[HARD MODE]" : "[NORMAL MODE]";
-      updateStatus(`${ALERT_MESSAGES.READY_MONITORING}${modeText}`);
+      updateStatus(`${ALERT_MESSAGES.READY_MONITORING}`);
       // Clear timer display when fully ready
       updateTimerDisplay("", 'ready');
       clearInterval(findChat);
