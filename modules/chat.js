@@ -206,13 +206,6 @@ function processMessageTriggers(message) {
     return;
   }
 
-  // Check for Tumeken charge message
-  if (message.includes(MESSAGE_TRIGGERS.UNITE_POWER)) {
-    console.log('⚡ TUMEKEN CHARGE: Time to charge');
-    showTemporaryAlert(ALERT_MESSAGES.TUMEKEN_CHARGE, TIMER_DURATIONS.TUMEKEN_CHARGE_DURATION);
-    return;
-  }
-
   // Check for scarab collection
   if (message.includes(MESSAGE_TRIGGERS.SCARAB_COLLECTED)) {
     console.log('🪳 SCARAB COLLECTED');

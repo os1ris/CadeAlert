@@ -132,10 +132,8 @@ export function updateStatus(message) {
     } else if (message === ALERT_MESSAGES.ALL_SCARABS) {
       // All scarabs collected - larger and more prominent
       statusBox.innerHTML = '<span class="alert-info-large">' + message + '</span>';
-    } else if (message === ALERT_MESSAGES.TUMEKEN_CHARGE) {
-      statusBox.innerHTML = '<span class="alert-info">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.KILL_DOGS) {
-      statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
+      statusBox.innerHTML = '<div class="alert-info-with-subtext"><span class="alert-critical">' + message + '</span></div><div class="alert-info-subtext">Amascut attacking Tumeken</div>';
     } else if (message === ALERT_MESSAGES.STAND_BEHIND) {
       statusBox.innerHTML = '<span class="alert-critical">' + message + '</span>';
     } else if (message === ALERT_MESSAGES.GREEN_1 || message === ALERT_MESSAGES.GREEN_2) {

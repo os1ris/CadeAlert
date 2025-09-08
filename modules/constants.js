@@ -8,7 +8,6 @@ export const TIMER_DURATIONS = {
   CANCEL_WINDOW: 10000,       // 10 seconds
   ALERT_DURATION: 6000,       // 6 seconds
   TRI_ATTACK_DURATION: 3000,  // 3 seconds
-  TUMEKEN_CHARGE_DURATION: 3000,
   AMASCUT_ATTACK_DURATION: 3000,
   NAME_CALLING_DELAY: 3600,   // 3.6 seconds
   NAME_CALLING_ALERT: 5000,   // 5 seconds
@@ -60,7 +59,6 @@ export const ALERT_MESSAGES = {
   PRAY_RANGED: "Pray Ranged!",
   PRAY_MAGIC: "Pray Magic!",
   TRI_COLOUR_ATTACK: "Tri-Colour Attack Incoming!",
-  TUMEKEN_CHARGE: "Time to charge",
   AMASCUT_ATTACKING: "Amascut attacking Tumeken!",
   NAME_CALLING: "Go to your corner",
   NAME_CALLING_CRONDIS: "NAME-CALLING MECHANIC! NO SKULLS!",
