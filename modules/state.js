@@ -167,16 +167,16 @@ export let lastGodSpoken = null;
 export let isGreenOne = true; // true = Green 1, false = Green 2
 export let greenFlipActive = false;
 
-// Alert Settings - Default all enabled
+// Alert Settings - Default all disabled
 export let alertSettings = {
-  prayerAlerts: true,      // Pray Melee, Ranged, Magic
-  triColourAttack: true,   // Tri-colour attack warnings
-  bendKnee: true,          // Bend the Knee attack
-  p7Mechanics: true,       // P7 Statue + directional vokes
-  greenFlips: true,        // Green 1/2 alerts
-  tumekenPhase: true,      // Kill dogs + Amascut attacking
-  subjugation: true,       // Subjugation phase
-  scarabCollection: true   // Scarab progress tracking
+  prayerAlerts: false,      // Pray Melee, Ranged, Magic
+  triColourAttack: false,   // Tri-colour attack warnings
+  bendKnee: false,          // Bend the Knee attack
+  p7Mechanics: false,       // P7 Statue + directional vokes
+  greenFlips: false,        // Green 1/2 alerts
+  tumekenPhase: false,      // Kill dogs + Amascut attacking
+  subjugation: false,       // Subjugation phase
+  scarabCollection: false   // Scarab progress tracking
 };
 
 /**
