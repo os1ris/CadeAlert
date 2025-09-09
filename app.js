@@ -6,7 +6,9 @@ A1lib.identifyApp("appconfig.json");
 
 // Import all modules
 import { initializeChatReader } from './modules/chat.js';
+import { initializeSettings } from './modules/settings.js';
 
 // Initialize the application
 console.log('🚀 Starting Barricade Timer...');
 initializeChatReader();
+initializeSettings();

@@ -3,6 +3,7 @@
 
 import { TIMER_DURATIONS, ALERT_MESSAGES } from './constants.js';
 import { resetState, scarabTimeout, greenFlipInterval, killDogsTimeout, subjugationTimeout, nameCallingTimeout, timerActive, setScarabTimeout, setGreenFlipInterval, setKillDogsTimeout, setSubjugationTimeout, setNameCallingTimeout } from './state.js';
+import { isAlertEnabled } from './settings.js';
 
 /**
  * Clear all mechanic-related timeouts and intervals
@@ -36,8 +37,14 @@ export function clearAllMechanicTimeouts() {
 /**
  * Show a temporary alert with automatic reset to monitoring status
  * Consolidates the common pattern: updateStatus -> setTimeout -> reset
+ * Checks alert settings before displaying
  */
 export function showTemporaryAlert(message, duration = TIMER_DURATIONS.ALERT_DURATION) {
+  // Check if this alert type is enabled
+  if (!isAlertEnabledForMessage(message)) {
+    return; // Skip showing this alert
+  }
+
   updateStatus(message);
 
   // Also show prayer alerts in details display
@@ -56,6 +63,67 @@ export function showTemporaryAlert(message, duration = TIMER_DURATIONS.ALERT_DUR
       clearDetails();
     }
   }, duration);
+}
+
+/**
+ * Check if an alert should be shown based on its message content
+ * @param {string} message - The alert message
+ * @returns {boolean} - Whether to show the alert
+ */
+function isAlertEnabledForMessage(message) {
+  // Prayer alerts
+  if (message === ALERT_MESSAGES.PRAY_MELEE ||
+      message === ALERT_MESSAGES.PRAY_RANGED ||
+      message === ALERT_MESSAGES.PRAY_MAGIC) {
+    return isAlertEnabled('prayerAlerts');
+  }
+
+  // Tri-colour attack
+  if (message === ALERT_MESSAGES.TRI_COLOUR_ATTACK) {
+    return isAlertEnabled('triColourAttack');
+  }
+
+  // Bend the knee
+  if (message === ALERT_MESSAGES.BEND_KNEE_ATTACK) {
+    return isAlertEnabled('bendKnee');
+  }
+
+  // P7 Mechanics (name calling + directional vokes)
+  if (message === ALERT_MESSAGES.NAME_CALLING ||
+      message === ALERT_MESSAGES.NAME_CALLING_CRONDIS ||
+      message === ALERT_MESSAGES.NAME_CALLING_SCABARAS ||
+      message === ALERT_MESSAGES.NW_VOKES ||
+      message === ALERT_MESSAGES.SW_VOKES ||
+      message === ALERT_MESSAGES.NE_VOKES ||
+      message === ALERT_MESSAGES.SE_VOKES) {
+    return isAlertEnabled('p7Mechanics');
+  }
+
+  // Green flips
+  if (message === ALERT_MESSAGES.GREEN_1 ||
+      message === ALERT_MESSAGES.GREEN_2) {
+    return isAlertEnabled('greenFlips');
+  }
+
+  // Tumeken phase (kill dogs + Amascut attacking)
+  if (message === ALERT_MESSAGES.KILL_DOGS ||
+      message === ALERT_MESSAGES.AMASCUT_ATTACKING) {
+    return isAlertEnabled('tumekenPhase');
+  }
+
+  // Subjugation
+  if (message === ALERT_MESSAGES.STAND_BEHIND) {
+    return isAlertEnabled('subjugation');
+  }
+
+  // Scarab collection (progress and completion)
+  if (message.includes(ALERT_MESSAGES.SCARABS_PREFIX) ||
+      message === ALERT_MESSAGES.ALL_SCARABS) {
+    return isAlertEnabled('scarabCollection');
+  }
+
+  // Default to showing alerts that don't have specific settings
+  return true;
 }
 
 /**
