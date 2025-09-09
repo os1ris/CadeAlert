@@ -167,6 +167,19 @@ export let lastGodSpoken = null;
 export let isGreenOne = true; // true = Green 1, false = Green 2
 export let greenFlipActive = false;
 
+// Alert Settings - Default all disabled
+export let alertSettings = {
+  isHardMode: true,         // Difficulty mode toggle
+  prayerAlerts: false,      // Pray Melee, Ranged, Magic
+  triColourAttack: false,   // Tri-colour attack warnings
+  bendKnee: false,          // Bend the Knee attack
+  p7Mechanics: false,       // P7 Statue + directional vokes
+  greenFlips: false,        // Green 1/2 alerts
+  tumekenPhase: false,      // Kill dogs + Amascut attacking
+  subjugation: false,       // Subjugation phase
+  scarabCollection: false   // Scarab progress tracking
+};
+
 /**
  * Reset all state variables to their initial values
  */
@@ -190,6 +203,65 @@ export function resetState() {
 }
 
 /**
+ * Load alert settings from localStorage
+ */
+export function loadAlertSettings() {
+  try {
+    const saved = localStorage.getItem('cadeAlert_settings');
+    if (saved) {
+      const parsedSettings = JSON.parse(saved);
+      // Merge saved settings with defaults to handle new settings
+      alertSettings = { ...alertSettings, ...parsedSettings };
+    }
+  } catch (error) {
+    console.log('Error loading alert settings:', error);
+  }
+}
+
+/**
+ * Save alert settings to localStorage
+ */
+export function saveAlertSettings() {
+  try {
+    localStorage.setItem('cadeAlert_settings', JSON.stringify(alertSettings));
+  } catch (error) {
+    console.log('Error saving alert settings:', error);
+  }
+}
+
+/**
+ * Update a specific alert setting
+ * @param {string} settingKey - The setting key to update
+ * @param {boolean} value - The new value
+ */
+export function updateAlertSetting(settingKey, value) {
+  if (alertSettings.hasOwnProperty(settingKey)) {
+    alertSettings[settingKey] = value;
+    saveAlertSettings();
+  }
+}
+
+/**
+ * Enable all alert settings
+ */
+export function enableAllAlerts() {
+  Object.keys(alertSettings).forEach(key => {
+    alertSettings[key] = true;
+  });
+  saveAlertSettings();
+}
+
+/**
+ * Disable all alert settings
+ */
+export function disableAllAlerts() {
+  Object.keys(alertSettings).forEach(key => {
+    alertSettings[key] = false;
+  });
+  saveAlertSettings();
+}
+
+/**
  * Get current state information for debugging
  */
 export function getStateInfo() {
@@ -203,6 +275,7 @@ export function getStateInfo() {
     isGreenOne,
     greenFlipActive,
     backwardsReadingEnabled,
-    backwardsReadingDistance
+    backwardsReadingDistance,
+    alertSettings
   };
 }
