@@ -7,7 +7,8 @@ import {
   saveAlertSettings,
   updateAlertSetting,
   enableAllAlerts,
-  disableAllAlerts
+  disableAllAlerts,
+  isHardMode
 } from './state.js';
 
 /**
@@ -16,6 +17,9 @@ import {
 export function initializeSettings() {
   // Load saved settings
   loadAlertSettings();
+
+  // Sync global isHardMode with loaded settings
+  window.isHardMode = alertSettings.isHardMode;
 
   // Set up event listeners for checkboxes
   setupCheckboxListeners();
@@ -52,6 +56,16 @@ function setupCheckboxListeners() {
       });
     }
   });
+
+  // Special handler for difficulty mode toggle
+  const hardModeCheckbox = document.getElementById('isHardMode');
+  if (hardModeCheckbox) {
+    hardModeCheckbox.addEventListener('change', (e) => {
+      updateAlertSetting('isHardMode', e.target.checked);
+      // Also update the global isHardMode variable
+      window.isHardMode = e.target.checked;
+    });
+  }
 }
 
 /**

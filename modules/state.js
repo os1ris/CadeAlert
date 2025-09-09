@@ -169,6 +169,7 @@ export let greenFlipActive = false;
 
 // Alert Settings - Default all disabled
 export let alertSettings = {
+  isHardMode: true,         // Difficulty mode toggle
   prayerAlerts: false,      // Pray Melee, Ranged, Magic
   triColourAttack: false,   // Tri-colour attack warnings
   bendKnee: false,          // Bend the Knee attack
