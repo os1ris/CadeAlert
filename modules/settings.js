@@ -27,6 +27,9 @@ export function initializeSettings() {
   // Update UI to reflect loaded settings
   updateSettingsUI();
 
+  // Update mode indicator
+  updateModeIndicator();
+
   // Make functions globally available for HTML onclick handlers
   window.toggleSettingsPanel = toggleSettingsPanel;
   window.enableAllAlerts = handleEnableAllAlerts;
@@ -64,6 +67,8 @@ function setupCheckboxListeners() {
       updateAlertSetting('isHardMode', e.target.checked);
       // Also update the global isHardMode variable
       window.isHardMode = e.target.checked;
+      // Update the mode indicator
+      updateModeIndicator();
     });
   }
 }
@@ -119,4 +124,16 @@ function handleDisableAllAlerts() {
  */
 export function isAlertEnabled(alertType) {
   return alertSettings[alertType] !== false; // Default to true if not set
+}
+
+/**
+ * Update the mode indicator display
+ */
+function updateModeIndicator() {
+  const indicator = document.getElementById('modeIndicator');
+  if (indicator) {
+    const isHard = alertSettings.isHardMode;
+    indicator.textContent = isHard ? 'HARD' : 'NORMAL';
+    indicator.className = `mode-indicator ${isHard ? 'hard-mode' : 'normal-mode'}`;
+  }
 }

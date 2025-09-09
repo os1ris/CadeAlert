@@ -366,6 +366,33 @@
         .settings-actions button {
             min-width: 100px;
         }
+
+        /* Mode Indicator Styling */
+        .mode-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mode-indicator.hard-mode {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+
+        .mode-indicator.normal-mode {
+            color: #4ecdc4;
+            border-color: #4ecdc4;
+        }
     </style>
 </head>
 <body>
@@ -373,6 +400,9 @@
     <div id="progressBar" class="progress-bar" style="display: none;"><div class="progress-fill"></div></div>
     <div id="statusBox" class="status-message">Waiting for mechanic...</div>
     <div id="detailsBox" class="details-message" style="display: none;"></div>
+
+    <!-- Mode Indicator -->
+    <div id="modeIndicator" class="mode-indicator">HARD</div>
 
     <!-- Settings Icon -->
     <div id="settingsIcon" class="settings-icon" onclick="toggleSettingsPanel()" title="Settings">

@@ -26,7 +26,7 @@ import {
   setTimerActive,
   setCountdownInterval
 } from './state.js';
-import { updateTimerDisplay, updateStatus, clearAllMechanicTimeouts, resetDisplays } from './helpers.js';
+import { updateTimerDisplay, updateStatus, clearAllMechanicTimeouts, resetDisplays, updateStatusIfEnabled, updateTimerDisplayIfEnabled } from './helpers.js';
 
 /**
  * Increment scarab count and handle collection logic
@@ -43,7 +43,7 @@ export function incrementScarabCount() {
 
   if (scarabCount >= 4) {
     // All scarabs collected
-    updateStatus(ALERT_MESSAGES.ALL_SCARABS);
+    updateStatusIfEnabled(ALERT_MESSAGES.ALL_SCARABS, 'scarabCollection');
     setScarabCount(0); // Reset for next phase
     setScarabTimeout(setTimeout(() => {
       updateStatus(ALERT_MESSAGES.MONITORING_CHAT);
@@ -51,7 +51,7 @@ export function incrementScarabCount() {
     }, TIMER_DURATIONS.SCARAB_ALERT_DURATION));
   } else {
     // Show current count - force immediate update
-    updateStatus(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4<br>${ALERT_MESSAGES.TARGETS_PREFIX}${targetHitCount}`);
+    updateStatusIfEnabled(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4<br>${ALERT_MESSAGES.TARGETS_PREFIX}${targetHitCount}`, 'scarabCollection');
     // Set timeout to clear display after 12 seconds of inactivity
     setScarabTimeout(setTimeout(() => {
       setScarabCount(0); // Reset counter
@@ -70,7 +70,7 @@ export function incrementTargetHitCount() {
   console.log('Target hit count:', targetHitCount);
 
   // Show current count - force immediate update
-  updateStatus(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4<br>${ALERT_MESSAGES.TARGETS_PREFIX}${targetHitCount}`);
+  updateStatusIfEnabled(`${ALERT_MESSAGES.SCARABS_PREFIX}${scarabCount}/4<br>${ALERT_MESSAGES.TARGETS_PREFIX}${targetHitCount}`, 'scarabCollection');
 }
 
 /**
@@ -85,7 +85,7 @@ export function startGreenFlip() {
   }
 
   // Show Green 1 in status area only (don't compete with timer box)
-  updateStatus(ALERT_MESSAGES.GREEN_1);
+  updateStatusIfEnabled(ALERT_MESSAGES.GREEN_1, 'greenFlips');
 
   // Clear status after 3 seconds but preserve state for toggling
   setGreenFlipInterval(setTimeout(() => {
@@ -104,9 +104,9 @@ export function toggleGreenFlip() {
 
   // Only update timer display if no barricade timer is active
   if (!timerActive) {
-    updateTimerDisplay("GREEN 2", 'alert-active');
+    updateTimerDisplayIfEnabled("GREEN 2", 'alert-active', 'greenFlips');
   }
-  updateStatus(ALERT_MESSAGES.GREEN_2);
+  updateStatusIfEnabled(ALERT_MESSAGES.GREEN_2, 'greenFlips');
 }
 
 /**
@@ -119,8 +119,8 @@ export function showKillDogsAlert() {
   clearAllMechanicTimeouts();
 
   // Clear all displays and show KILL DOGS NOW
-  updateTimerDisplay(ALERT_MESSAGES.KILL_DOGS, 'alert-active');
-  updateStatus(ALERT_MESSAGES.KILL_DOGS);
+  updateTimerDisplayIfEnabled(ALERT_MESSAGES.KILL_DOGS, 'alert-active', 'tumekenPhase');
+  updateStatusIfEnabled(ALERT_MESSAGES.KILL_DOGS, 'tumekenPhase');
 
   // Reset after 9 seconds
   setKillDogsTimeout(setTimeout(() => {
@@ -139,8 +139,8 @@ export function showSubjugationAlert() {
   clearAllMechanicTimeouts();
 
   // Clear all displays and show STAND BEHIND AMASCUT
-  updateTimerDisplay("Stand Behind<br>Amascut", 'alert-active');
-  updateStatus(ALERT_MESSAGES.STAND_BEHIND);
+  updateTimerDisplayIfEnabled("Stand Behind<br>Amascut", 'alert-active', 'subjugation');
+  updateStatusIfEnabled(ALERT_MESSAGES.STAND_BEHIND, 'subjugation');
 
   // Reset after 8 seconds
   setSubjugationTimeout(setTimeout(() => {
@@ -166,18 +166,18 @@ export function handleNameCallingMechanic() {
 
     // Check which god was last spoken to and show appropriate message
     if (lastGodSpoken === 'crondis') {
-      updateStatus(ALERT_MESSAGES.NAME_CALLING_CRONDIS);
+      updateStatusIfEnabled(ALERT_MESSAGES.NAME_CALLING_CRONDIS, 'p7Mechanics');
     } else if (lastGodSpoken === 'scabaras') {
-      updateStatus(ALERT_MESSAGES.NAME_CALLING_SCABARAS);
+      updateStatusIfEnabled(ALERT_MESSAGES.NAME_CALLING_SCABARAS, 'p7Mechanics');
     } else {
-      updateStatus(ALERT_MESSAGES.NAME_CALLING);
+      updateStatusIfEnabled(ALERT_MESSAGES.NAME_CALLING, 'p7Mechanics');
     }
 
     // Cancel any active timers during this phase
     if (timerActive) {
       clearInterval(countdownInterval);
       setTimerActive(false);
-      updateTimerDisplay(ALERT_MESSAGES.MECHANIC_ACTIVE, 'alert-active');
+      updateTimerDisplayIfEnabled(ALERT_MESSAGES.MECHANIC_ACTIVE, 'alert-active', 'p7Mechanics');
     }
 
     // Clear the alert after 5 seconds

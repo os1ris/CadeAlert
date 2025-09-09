@@ -320,3 +320,38 @@ export function updateDetails(message) {
 export function clearDetails() {
   updateDetails("");
 }
+
+/**
+ * Update status only if the corresponding alert setting is enabled
+ * @param {string} message - Status message to display
+ * @param {string} settingKey - The alert setting key to check
+ */
+export function updateStatusIfEnabled(message, settingKey) {
+  if (isAlertEnabled(settingKey)) {
+    updateStatus(message);
+  }
+}
+
+/**
+ * Update timer display only if the corresponding alert setting is enabled
+ * @param {string} text - Text to display
+ * @param {string} className - CSS class for styling
+ * @param {string} settingKey - The alert setting key to check
+ */
+export function updateTimerDisplayIfEnabled(text, className, settingKey) {
+  if (isAlertEnabled(settingKey)) {
+    updateTimerDisplay(text, className);
+  }
+}
+
+/**
+ * Show temporary alert only if the corresponding alert setting is enabled
+ * @param {string} message - Alert message to display
+ * @param {string} settingKey - The alert setting key to check
+ * @param {number} duration - Duration in milliseconds
+ */
+export function showTemporaryAlertIfEnabled(message, settingKey, duration = TIMER_DURATIONS.ALERT_DURATION) {
+  if (isAlertEnabled(settingKey)) {
+    showTemporaryAlert(message, duration);
+  }
+}
