@@ -19,6 +19,7 @@ import { startBarricadeTimer, cancelTimer } from './timer.js';
 import { handleNameCallingMechanic, updateLastGodSpoken, toggleGreenFlip, showKillDogsAlert, showSubjugationAlert, incrementScarabCount, incrementTargetHitCount, startGreenFlip } from './mechanics.js';
 import { handleError } from './error.js';
 import { resetForNewInstance } from './reset.js';
+import { isAlertEnabled } from './settings.js';
 
 // Chat reader setup - reading relevant chat colors
 let chatReader = new Chatbox.default();
@@ -180,124 +181,142 @@ function processMessageTriggers(message) {
   }
 
   // Check for prayer switching alerts
-  if (message.includes(MESSAGE_TRIGGERS.ALL_STRENGTH_WITHERS)) {
-    console.log('🛡️ PRAYER ALERT: Melee attack detected');
-    showTemporaryAlert(ALERT_MESSAGES.PRAY_MELEE);
-    return;
-  }
-  if (message.includes(MESSAGE_TRIGGERS.I_WILL_NOT_SUFFER)) {
-    console.log('🛡️ PRAYER ALERT: Ranged attack detected');
-    showTemporaryAlert(ALERT_MESSAGES.PRAY_RANGED);
-    return;
-  }
-  if (message.includes(MESSAGE_TRIGGERS.YOUR_SOUL_IS_WEAK)) {
-    console.log('🛡️ PRAYER ALERT: Magic attack detected');
-    showTemporaryAlert(ALERT_MESSAGES.PRAY_MAGIC);
-    return;
+  if (isAlertEnabled('prayerAlerts')) {
+    if (message.includes(MESSAGE_TRIGGERS.ALL_STRENGTH_WITHERS)) {
+      console.log('🛡️ PRAYER ALERT: Melee attack detected');
+      showTemporaryAlert(ALERT_MESSAGES.PRAY_MELEE);
+      return;
+    }
+    if (message.includes(MESSAGE_TRIGGERS.I_WILL_NOT_SUFFER)) {
+      console.log('🛡️ PRAYER ALERT: Ranged attack detected');
+      showTemporaryAlert(ALERT_MESSAGES.PRAY_RANGED);
+      return;
+    }
+    if (message.includes(MESSAGE_TRIGGERS.YOUR_SOUL_IS_WEAK)) {
+      console.log('🛡️ PRAYER ALERT: Magic attack detected');
+      showTemporaryAlert(ALERT_MESSAGES.PRAY_MAGIC);
+      return;
+    }
   }
 
   // Check for tri-colour attack warnings
-  if ((message.includes(MESSAGE_TRIGGERS.GROVEL) ||
-        message.includes(MESSAGE_TRIGGERS.PATHETIC) ||
-        message.includes(MESSAGE_TRIGGERS.WEAK))) {
-    console.log('⚠️ TRI-ATTACK WARNING: Tri-colour attack incoming');
-    console.log('📝 Message that triggered:', message);
-    showTemporaryAlert(ALERT_MESSAGES.TRI_COLOUR_ATTACK, TIMER_DURATIONS.TRI_ATTACK_DURATION);
-    return;
+  if (isAlertEnabled('triColourAttack')) {
+    if ((message.includes(MESSAGE_TRIGGERS.GROVEL) ||
+          message.includes(MESSAGE_TRIGGERS.PATHETIC) ||
+          message.includes(MESSAGE_TRIGGERS.WEAK))) {
+      console.log('⚠️ TRI-ATTACK WARNING: Tri-colour attack incoming');
+      console.log('📝 Message that triggered:', message);
+      showTemporaryAlert(ALERT_MESSAGES.TRI_COLOUR_ATTACK, TIMER_DURATIONS.TRI_ATTACK_DURATION);
+      return;
+    }
   }
 
   // Check for scarab collection
-  if (message.includes(MESSAGE_TRIGGERS.SCARAB_COLLECTED)) {
-    console.log('🪳 SCARAB COLLECTED');
-    incrementScarabCount();
-    return;
+  if (isAlertEnabled('scarabCollection')) {
+    if (message.includes(MESSAGE_TRIGGERS.SCARAB_COLLECTED)) {
+      console.log('🪳 SCARAB COLLECTED');
+      incrementScarabCount();
+      return;
+    }
+
+    // Check for target hit
+    if (message.includes(MESSAGE_TRIGGERS.TARGET_HIT)) {
+      console.log('🎯 TARGET HIT');
+      incrementTargetHitCount();
+      return;
+    }
   }
 
-  // Check for target hit
-  if (message.includes(MESSAGE_TRIGGERS.TARGET_HIT)) {
-    console.log('🎯 TARGET HIT');
-    incrementTargetHitCount();
-    return;
+  // Check for tumeken phase alerts
+  if (isAlertEnabled('tumekenPhase')) {
+    // Check for Amascut attacking Tumeken
+    if (message.includes(MESSAGE_TRIGGERS.GET_OUT_OF_MY_WAY)) {
+      console.log('⚔️ AMASCUT ATTACKING TUMEKEN');
+      showTemporaryAlert(ALERT_MESSAGES.AMASCUT_ATTACKING, TIMER_DURATIONS.AMASCUT_ATTACK_DURATION);
+      return;
+    }
+
+    // Check for Tumeken's "A new dawn" message
+    if (message.includes(MESSAGE_TRIGGERS.NEW_DAWN)) {
+      console.log('🐕 NEW DAWN: Starting KILL DOGS NOW alert');
+      showKillDogsAlert();
+      return;
+    }
   }
 
-  // Check for Amascut attacking Tumeken
-  if (message.includes(MESSAGE_TRIGGERS.GET_OUT_OF_MY_WAY)) {
-    console.log('⚔️ AMASCUT ATTACKING TUMEKEN');
-    showTemporaryAlert(ALERT_MESSAGES.AMASCUT_ATTACKING, TIMER_DURATIONS.AMASCUT_ATTACK_DURATION);
-    return;
-  }
+  // Check for P7 mechanics (name-calling and directional vokes)
+  if (isAlertEnabled('p7Mechanics')) {
+    // Check for name-calling mechanic start
+    if (message.includes(MESSAGE_TRIGGERS.YOU_ARE_NOTHING)) {
+      handleNameCallingMechanic();
+      return;
+    }
 
-  // Check for name-calling mechanic start
-  if (message.includes(MESSAGE_TRIGGERS.YOU_ARE_NOTHING)) {
-    handleNameCallingMechanic();
-    return;
-  }
+    // Check for voke calls
+    if (message.includes(MESSAGE_TRIGGERS.I_AM_SORRY_APMEKEN)) {
+      console.log('📍 NW VOKES CALLED');
+      updateLastGodSpoken('apmeken');
+      showTemporaryAlert(ALERT_MESSAGES.NW_VOKES, TIMER_DURATIONS.VOKES_DURATION);
+      return;
+    }
 
-  // Check for voke calls
-  if (message.includes(MESSAGE_TRIGGERS.I_AM_SORRY_APMEKEN)) {
-    console.log('📍 NW VOKES CALLED');
-    updateLastGodSpoken('apmeken');
-    showTemporaryAlert(ALERT_MESSAGES.NW_VOKES, TIMER_DURATIONS.VOKES_DURATION);
-    return;
-  }
+    if (message.includes(MESSAGE_TRIGGERS.FORGIVE_ME_HET)) {
+      console.log('📍 SW VOKES CALLED');
+      updateLastGodSpoken('het');
+      showTemporaryAlert(ALERT_MESSAGES.SW_VOKES, TIMER_DURATIONS.VOKES_DURATION);
+      return;
+    }
 
-  if (message.includes(MESSAGE_TRIGGERS.FORGIVE_ME_HET)) {
-    console.log('📍 SW VOKES CALLED');
-    updateLastGodSpoken('het');
-    showTemporaryAlert(ALERT_MESSAGES.SW_VOKES, TIMER_DURATIONS.VOKES_DURATION);
-    return;
-  }
+    // Check for NE voke call - SPECIFIC DETECTION to avoid false positives
+    if (message === MESSAGE_TRIGGERS.SCABARAS || (message.includes(MESSAGE_TRIGGERS.SCABARAS) && message.length < 20)) {
+      console.log('📍 NE VOKES CALLED - Scabaras called');
+      updateLastGodSpoken('scabaras');
+      showTemporaryAlert(ALERT_MESSAGES.NE_VOKES, TIMER_DURATIONS.VOKES_DURATION);
+      return;
+    }
 
-  // Check for NE voke call - SPECIFIC DETECTION to avoid false positives
-  if (message === MESSAGE_TRIGGERS.SCABARAS || (message.includes(MESSAGE_TRIGGERS.SCABARAS) && message.length < 20)) {
-    console.log('📍 NE VOKES CALLED - Scabaras called');
-    updateLastGodSpoken('scabaras');
-    showTemporaryAlert(ALERT_MESSAGES.NE_VOKES, TIMER_DURATIONS.VOKES_DURATION);
-    return;
-  }
-
-  if (message.includes(MESSAGE_TRIGGERS.CRONDIS)) {
-    console.log('📍 SE VOKES CALLED');
-    updateLastGodSpoken('crondis');
-    showTemporaryAlert(ALERT_MESSAGES.SE_VOKES, TIMER_DURATIONS.VOKES_DURATION);
-    return;
+    if (message.includes(MESSAGE_TRIGGERS.CRONDIS)) {
+      console.log('📍 SE VOKES CALLED');
+      updateLastGodSpoken('crondis');
+      showTemporaryAlert(ALERT_MESSAGES.SE_VOKES, TIMER_DURATIONS.VOKES_DURATION);
+      return;
+    }
   }
 
   // Check for "Bend the Knee" attack
-  if (message.includes(MESSAGE_TRIGGERS.BEND_THE_KNEE)) {
-    console.log('⚔️ BEND THE KNEE ATTACK: Incoming attack detected');
-    showTemporaryAlert(ALERT_MESSAGES.BEND_KNEE_ATTACK, TIMER_DURATIONS.BEND_KNEE_DURATION);
-    return;
-  }
-
-  // Check for Amascut's "Your light will be snuffed out" message
-  if (message.includes(MESSAGE_TRIGGERS.LIGHT_SNUFFED)) {
-    // Toggle between Green 1 and Green 2
-    setIsGreenOne(!isGreenOne);
-    console.log(`🟢 LIGHT SNUFFED: ${isGreenOne ? 'Green 1' : 'Green 2'}`);
-
-    if (isGreenOne) {
-      startGreenFlip(); // Shows Green 1
-    } else {
-      toggleGreenFlip(); // Shows Green 2
+  if (isAlertEnabled('bendKnee')) {
+    if (message.includes(MESSAGE_TRIGGERS.BEND_THE_KNEE)) {
+      console.log('⚔️ BEND THE KNEE ATTACK: Incoming attack detected');
+      showTemporaryAlert(ALERT_MESSAGES.BEND_KNEE_ATTACK, TIMER_DURATIONS.BEND_KNEE_DURATION);
+      return;
     }
-
-    // Mark mechanic as active
-    greenFlipActive = true;
-    return;
   }
 
-  // Check for Tumeken's "A new dawn" message
-  if (message.includes(MESSAGE_TRIGGERS.NEW_DAWN)) {
-    console.log('🐕 NEW DAWN: Starting KILL DOGS NOW alert');
-    showKillDogsAlert();
-    return;
+  // Check for green flips
+  if (isAlertEnabled('greenFlips')) {
+    if (message.includes(MESSAGE_TRIGGERS.LIGHT_SNUFFED)) {
+      // Toggle between Green 1 and Green 2
+      setIsGreenOne(!isGreenOne);
+      console.log(`🟢 LIGHT SNUFFED: ${isGreenOne ? 'Green 1' : 'Green 2'}`);
+
+      if (isGreenOne) {
+        startGreenFlip(); // Shows Green 1
+      } else {
+        toggleGreenFlip(); // Shows Green 2
+      }
+
+      // Mark mechanic as active
+      greenFlipActive = true;
+      return;
+    }
   }
 
-  // Check for Amascut's "I will not be subjugated" message
-  if (message.includes(MESSAGE_TRIGGERS.NOT_BE_SUBJUGATED)) {
-    console.log('👑 SUBJUGATION: Starting stand behind alert');
-    showSubjugationAlert();
-    return;
+  // Check for subjugation phase
+  if (isAlertEnabled('subjugation')) {
+    if (message.includes(MESSAGE_TRIGGERS.NOT_BE_SUBJUGATED)) {
+      console.log('👑 SUBJUGATION: Starting stand behind alert');
+      showSubjugationAlert();
+      return;
+    }
   }
 }
